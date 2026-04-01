@@ -157,7 +157,15 @@
     var rightHtml = '';
     if (right === 'gear') {
       rightHtml =
-        '<a href="profile.html" class="header-icon-btn" aria-label="Settings">' + Icons.gear() + '</a>';
+        '<div class="header-gear-wrap">' +
+        '<button type="button" class="header-icon-btn" id="odyl-gear-btn" aria-label="Settings menu" aria-expanded="false" aria-haspopup="true">' +
+        Icons.gear() +
+        '</button>' +
+        '<div class="header-gear-dropdown" id="odyl-gear-dropdown" role="menu" hidden>' +
+        '<a href="profile.html" class="header-gear-item" role="menuitem">Profile</a>' +
+        '<button type="button" class="header-gear-item" role="menuitem" data-odyl-switch-profile>Switch profile</button>' +
+        '</div>' +
+        '</div>';
     } else {
       rightHtml = '<span class="header-icon-btn" style="visibility:hidden" aria-hidden="true"></span>';
     }
@@ -182,10 +190,62 @@
     });
   }
 
+  var gearDocListenersBound = false;
+
+  function bindGearMenu(root) {
+    var wrap = root.querySelector('.header-gear-wrap');
+    if (!wrap) return;
+    var btn = wrap.querySelector('#odyl-gear-btn');
+    var menu = wrap.querySelector('#odyl-gear-dropdown');
+    var switchBtn = wrap.querySelector('[data-odyl-switch-profile]');
+    if (!btn || !menu) return;
+
+    function setOpen(open) {
+      menu.hidden = !open;
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      setOpen(menu.hidden);
+    });
+
+    if (switchBtn) {
+      switchBtn.addEventListener('click', function () {
+        clearPersona();
+        window.location.href = 'login.html';
+      });
+    }
+
+    if (!gearDocListenersBound) {
+      gearDocListenersBound = true;
+      document.addEventListener('click', function (e) {
+        if (e.target.closest && e.target.closest('.header-gear-wrap')) return;
+        var m = document.getElementById('odyl-gear-dropdown');
+        var b = document.getElementById('odyl-gear-btn');
+        if (m && !m.hidden) {
+          m.hidden = true;
+          if (b) b.setAttribute('aria-expanded', 'false');
+        }
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          var m = document.getElementById('odyl-gear-dropdown');
+          var b = document.getElementById('odyl-gear-btn');
+          if (m && !m.hidden) {
+            m.hidden = true;
+            if (b) b.setAttribute('aria-expanded', 'false');
+          }
+        }
+      });
+    }
+  }
+
   function mountHeader(container, variant, options) {
     var el = typeof container === 'string' ? document.querySelector(container) : container;
     if (!el) return;
     el.innerHTML = renderHeader(variant, options);
+    bindGearMenu(el);
   }
 
   function renderBottomNav(active) {

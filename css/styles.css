@@ -135,6 +135,62 @@ body {
   display: block;
 }
 
+.header-gear-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.header-gear-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  min-width: 11rem;
+  background: var(--card-bg);
+  border-radius: 14px;
+  box-shadow: var(--card-shadow);
+  padding: 6px 0;
+  z-index: 200;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.header-gear-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 16px;
+  border: none;
+  background: none;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text-dark);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+a.header-gear-item:hover,
+button.header-gear-item:hover {
+  background: rgba(255, 107, 139, 0.12);
+}
+
+.login-session-banner {
+  margin: 0 0 16px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 16px;
+  box-shadow: var(--card-shadow);
+}
+
+.login-session-banner p {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: var(--text-dark);
+  line-height: 1.4;
+}
+
+.login-session-banner .btn-login-switch {
+  width: 100%;
+}
+
 /* Welcome / page title pills */
 .welcome-banner,
 .page-title {

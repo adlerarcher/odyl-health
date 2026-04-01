@@ -23,6 +23,11 @@
   <div id="odyl-header-mount"></div>
 
   <div class="login-container">
+    <div id="login-session-banner" class="login-session-banner" style="display: none;">
+      <p>Logged in as <strong id="login-session-name"></strong></p>
+      <button type="button" class="action-btn outline-dark btn-login-switch" id="btn-login-switch">Switch profile</button>
+    </div>
+
     <h3>Choose Your Profile</h3>
     <p>Select a persona to explore ODYL. Each profile has a unique health history, test results, and survey responses.</p>
 
@@ -40,6 +45,20 @@
 <script>
 (function () {
   ODYL.mountHeader('#odyl-header-mount', 'sub');
+
+  var sessionPersona = ODYL.getPersona();
+  if (sessionPersona) {
+    var banner = document.getElementById('login-session-banner');
+    var nameEl = document.getElementById('login-session-name');
+    banner.style.display = 'block';
+    nameEl.textContent =
+      sessionPersona.First_Name +
+      (sessionPersona.Last_Name ? ' ' + sessionPersona.Last_Name : '');
+    document.getElementById('btn-login-switch').addEventListener('click', function () {
+      ODYL.clearPersona();
+      window.location.reload();
+    });
+  }
 
   var bgColors = ['#f97085', '#e88a3a', '#7ec89b', '#b491d1', '#5dade2', '#f4a460'];
   var list = document.getElementById('persona-list');
