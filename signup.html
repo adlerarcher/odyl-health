@@ -152,11 +152,7 @@
     </div>
   </div>
 
-  <div class="app-header">
-    <span style="font-size:28px;">&#x1F512;</span>
-    <span class="logo">O D Y L</span>
-    <span style="font-size:28px;">&#x2699;&#xFE0F;</span>
-  </div>
+  <div id="odyl-header-mount"></div>
 
   <div class="signup-container">
     <h3>Create Your Profile</h3>
@@ -214,6 +210,10 @@
 
 </div>
 
+<script src="js/odyl.js"></script>
+<script>
+  ODYL.mountHeader('#odyl-header-mount', 'sub');
+</script>
 <script>
   // Show gender identity field conditionally
   document.getElementById('gender-diff').addEventListener('change', function() {

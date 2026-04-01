@@ -147,24 +147,17 @@
   };
 
   /**
-   * @param {'home'|'sub'|'login'} variant — home: gear; sub: logout; login: no right action
-   * @param {{ right?: 'gear'|'door'|'none' }} options
+   * Shared app header: lock → lock.html, settings (gear) → profile.html.
+   * @param {'home'|'sub'|'login'} variant — reserved for future layout tweaks
+   * @param {{ right?: 'gear'|'none' }} options — default right control is settings; use 'none' to hide
    */
   function renderHeader(variant, options) {
-    variant = variant || 'sub';
     options = options || {};
-    var right =
-      options.right ||
-      (variant === 'home' ? 'gear' : variant === 'login' ? 'none' : 'door');
+    var right = Object.prototype.hasOwnProperty.call(options, 'right') ? options.right : 'gear';
     var rightHtml = '';
     if (right === 'gear') {
       rightHtml =
         '<a href="profile.html" class="header-icon-btn" aria-label="Settings">' + Icons.gear() + '</a>';
-    } else if (right === 'door') {
-      rightHtml =
-        '<button type="button" class="header-icon-btn" aria-label="Sign out" data-odyl-logout>' +
-        Icons.doorExit() +
-        '</button>';
     } else {
       rightHtml = '<span class="header-icon-btn" style="visibility:hidden" aria-hidden="true"></span>';
     }
@@ -193,7 +186,6 @@
     var el = typeof container === 'string' ? document.querySelector(container) : container;
     if (!el) return;
     el.innerHTML = renderHeader(variant, options);
-    bindLogoutButtons(el);
   }
 
   function renderBottomNav(active) {

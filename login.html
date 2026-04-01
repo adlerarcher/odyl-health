@@ -20,19 +20,13 @@
     </div>
   </div>
 
-  <div class="app-header">
-    <span style="font-size:28px;">&#x1F512;</span>
-    <span class="logo">O D Y L</span>
-    <span style="font-size:28px;">&#x2699;&#xFE0F;</span>
-  </div>
+  <div id="odyl-header-mount"></div>
 
   <div class="login-container">
     <h3>Choose Your Profile</h3>
     <p>Select a persona to explore ODYL. Each profile has a unique health history, test results, and survey responses.</p>
 
-    <div class="persona-list" id="persona-list">
-      <!-- Populated by JS -->
-    </div>
+    <div class="persona-list" id="persona-list"></div>
 
     <div style="text-align:center; margin-top:20px; font-size:13px; color:var(--text-medium);">
       Or <a href="signup.html" style="color:var(--text-dark); font-weight:700; text-decoration:none;">create your own profile</a>
@@ -41,108 +35,57 @@
 
 </div>
 
+<script src="js/odyl.js"></script>
+<script src="js/personas.js"></script>
 <script>
-// Synthetic personas from the ODYL dataset
-const personas = [
-  {
-    Patient_ID: 1, User_ID: "OP56972Z", First_Name: "Avery", Last_Name: "White",
-    Gender: "Male", Race_Ethnicity: "White", DOB: "2002-04-21",
-    tests: [
-      { type: "Hepatitis B", result: "Positive", date: "2025-11-04", location: "IWantTheKit" }
-    ],
-    survey: { Q1: 0, Q2: 1, Q3: 1, Q4: 1, Q5: 1, Q6: 3, Q7: 2, Q8: 1 },
-    rewards: 50, bg: 2
-  },
-  {
-    Patient_ID: 2, User_ID: "OP27346Q", First_Name: "Harper", Last_Name: "Young",
-    Gender: "Female", Race_Ethnicity: "White", DOB: "2006-05-22",
-    tests: [
-      { type: "Chlamydia", result: "Negative", date: "2026-01-15", location: "Johns Hopkins Holy Cross Hospital" },
-      { type: "HSV-1", result: "Positive", date: "2024-04-28", location: "Chase Brexton" },
-      { type: "Trichomoniasis", result: "Indeterminate", date: "2025-01-15", location: "Johns Hopkins Holy Cross Hospital" },
-      { type: "Syphilis", result: "Positive", date: "2024-07-13", location: "Baltimore City Health Department" },
-      { type: "Gonorrhea", result: "Negative", date: "2026-01-31", location: "IWantTheKit" },
-      { type: "HSV-2", result: "Negative", date: "2025-05-20", location: "LabCorp" },
-      { type: "HPV", result: "Negative", date: "2025-05-17", location: "IWantTheKit" }
-    ],
-    survey: { Q1: 1, Q2: 1, Q3: 3, Q4: 3, Q5: 2, Q6: 2, Q7: 2, Q8: 1 },
-    rewards: 120, bg: 1
-  },
-  {
-    Patient_ID: 3, User_ID: "OP91579T", First_Name: "Hayden", Last_Name: "Lewis",
-    Gender: "Male", Race_Ethnicity: "Black", DOB: "2011-01-18",
-    tests: [
-      { type: "HPV", result: "Indeterminate", date: "2024-05-12", location: "Chase Brexton" },
-      { type: "Chlamydia", result: "Positive", date: "2024-09-05", location: "Johns Hopkins Holy Cross Hospital" },
-      { type: "HIV", result: "Indeterminate", date: "2025-10-29", location: "IWantTheKit" },
-      { type: "Trichomoniasis", result: "Negative", date: "2024-12-30", location: "Chase Brexton" },
-      { type: "Hepatitis C", result: "Indeterminate", date: "2025-07-17", location: "Johns Hopkins Holy Cross Hospital" }
-    ],
-    survey: { Q1: 1, Q2: 1, Q3: 2, Q4: 1, Q5: 1, Q6: 2, Q7: 2, Q8: 2 },
-    rewards: 85, bg: 3
-  },
-  {
-    Patient_ID: 4, User_ID: "OP93175B", First_Name: "Jamie", Last_Name: "Rivera",
-    Gender: "Male", Race_Ethnicity: "White", DOB: "2000-06-18",
-    tests: [
-      { type: "HPV", result: "Negative", date: "2025-04-26", location: "Johns Hopkins Holy Cross Hospital" },
-      { type: "Trichomoniasis", result: "Positive", date: "2026-01-03", location: "LabCorp" },
-      { type: "Gonorrhea", result: "Negative", date: "2025-04-25", location: "Chase Brexton" },
-      { type: "Hepatitis B", result: "Positive", date: "2026-01-18", location: "LabCorp" },
-      { type: "Syphilis", result: "Indeterminate", date: "2024-11-03", location: "LabCorp" }
-    ],
-    survey: { Q1: 1, Q2: 1, Q3: 2, Q4: 3, Q5: 3, Q6: 1, Q7: 2, Q8: 1 },
-    rewards: 200, bg: 4
-  },
-  {
-    Patient_ID: 5, User_ID: "OP44821K", First_Name: "Morgan", Last_Name: "Chen",
-    Gender: "Female", Race_Ethnicity: "Asian", DOB: "2003-09-14",
-    tests: [
-      { type: "Chlamydia", result: "Negative", date: "2025-12-01", location: "Chase Brexton" },
-      { type: "Gonorrhea", result: "Negative", date: "2025-12-01", location: "Chase Brexton" }
-    ],
-    survey: { Q1: 1, Q2: 2, Q3: 4, Q4: 2, Q5: 3, Q6: 2, Q7: 2, Q8: 2 },
-    rewards: 30, bg: 5
-  },
-  {
-    Patient_ID: 6, User_ID: "OP66290M", First_Name: "Jordan", Last_Name: "Davis",
-    Gender: "Non-binary", Race_Ethnicity: "Black", DOB: "2001-11-30",
-    tests: [],
-    survey: { Q1: 0, Q2: 3, Q3: 4, Q4: 2, Q5: 3, Q6: 2, Q7: 2, Q8: 3 },
-    rewards: 10, bg: 6
-  }
-];
+(function () {
+  ODYL.mountHeader('#odyl-header-mount', 'sub');
 
-const bgColors = ['#f97085', '#e88a3a', '#7ec89b', '#b491d1', '#5dade2', '#f4a460'];
+  var bgColors = ['#f97085', '#e88a3a', '#7ec89b', '#b491d1', '#5dade2', '#f4a460'];
+  var list = document.getElementById('persona-list');
+  var personas = window.ODYL_PERSONAS || [];
 
-const list = document.getElementById('persona-list');
+  personas.forEach(function (p) {
+    var initials = p.First_Name[0] + p.Last_Name[0];
+    var age = Math.floor((new Date() - new Date(p.DOB)) / (365.25 * 24 * 60 * 60 * 1000));
+    var testCount = p.tests.length;
+    var meta =
+      age +
+      'y/o ' +
+      p.Gender +
+      ' &middot; ' +
+      (testCount > 0 ? testCount + ' test result' + (testCount > 1 ? 's' : '') : 'No test results');
 
-personas.forEach(p => {
-  const initials = p.First_Name[0] + p.Last_Name[0];
-  const age = Math.floor((new Date() - new Date(p.DOB)) / (365.25 * 24 * 60 * 60 * 1000));
-  const testCount = p.tests.length;
-  const meta = age + 'y/o ' + p.Gender + ' &middot; ' + (testCount > 0 ? testCount + ' test result' + (testCount > 1 ? 's' : '') : 'No test results');
+    var card = document.createElement('a');
+    card.href = '#';
+    card.className = 'persona-card';
+    card.innerHTML =
+      '<div class="persona-avatar" style="background:' +
+      (bgColors[p.bg - 1] || bgColors[0]) +
+      '">' +
+      initials +
+      '</div>' +
+      '<div class="persona-details">' +
+      '<div class="persona-name">' +
+      p.First_Name +
+      ' ' +
+      p.Last_Name +
+      '</div>' +
+      '<div class="persona-meta">' +
+      meta +
+      '</div>' +
+      '</div>' +
+      '<div class="persona-arrow">&#x203A;</div>';
 
-  const card = document.createElement('a');
-  card.href = '#';
-  card.className = 'persona-card';
-  card.innerHTML = `
-    <div class="persona-avatar" style="background:${bgColors[p.bg - 1] || bgColors[0]}">${initials}</div>
-    <div class="persona-details">
-      <div class="persona-name">${p.First_Name} ${p.Last_Name}</div>
-      <div class="persona-meta">${meta}</div>
-    </div>
-    <div class="persona-arrow">&#x203A;</div>
-  `;
+    card.addEventListener('click', function (e) {
+      e.preventDefault();
+      ODYL.setPersona(p);
+      window.location.href = 'index.html';
+    });
 
-  card.addEventListener('click', (e) => {
-    e.preventDefault();
-    localStorage.setItem('odyl_persona', JSON.stringify(p));
-    window.location.href = 'index.html';
+    list.appendChild(card);
   });
-
-  list.appendChild(card);
-});
+})();
 </script>
 
 </body>
