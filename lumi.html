@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ODYL Health — LUMI.AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="phone-frame">
+
+  <div class="status-bar">
+    <span>9:41</span>
+    <div class="status-bar-icons">
+      <span>&#9679;&#9679;&#9679;&#9679;</span>
+      <span>&#x1F50B;</span>
+    </div>
+  </div>
+
+  <div id="odyl-header-mount"></div>
+
+  <div class="page-title">
+    <h2>LUMI.AI</h2>
+  </div>
+
+  <p class="privacy-note">Stub only — no model calls; messages stay on this device.</p>
+
+  <div class="lumi-chat" id="lumi-thread" style="min-height:360px;">
+    <div class="chat-bubble bot">Hi <span id="lumi-name">there</span>. I&rsquo;m LUMI — a practice coach for questions about sexual health. What&rsquo;s on your mind today?</div>
+  </div>
+
+  <div class="lumi-input-row" style="margin:0 16px 8px;">
+    <input type="text" id="lumi-input" placeholder="Type a message…" autocomplete="off" maxlength="500">
+    <button type="button" class="lumi-send" id="lumi-send" aria-label="Send">
+      <span id="lumi-send-icon"></span>
+    </button>
+  </div>
+
+  <p class="lumi-disclaimer">Not medical advice. For emergencies, call 911. For crisis support, call or text 988.</p>
+
+  <div id="odyl-nav-mount"></div>
+
+</div>
+
+<script src="js/odyl.js"></script>
+<script>
+  var persona = ODYL.requirePersona();
+  ODYL.mountHeader('#odyl-header-mount', 'sub');
+  ODYL.mountBottomNav('#odyl-nav-mount', 'none');
+
+  document.getElementById('lumi-name').textContent = persona.First_Name;
+  document.getElementById('lumi-send-icon').innerHTML = ODYL.Icons.plane();
+
+  var thread = document.getElementById('lumi-thread');
+  var input = document.getElementById('lumi-input');
+  var sendBtn = document.getElementById('lumi-send');
+
+  var stubs = [
+    'Thanks for sharing that. In a full build, I&rsquo;d pull trusted education snippets and suggest when to talk to a clinician.',
+    'That&rsquo;s a common question. Condoms and routine testing are two tools many people use — your care team can personalize this.',
+    'I hear you. If anything feels unsafe, reaching out to a trusted adult or a crisis line is important.',
+    'For your demo persona, you can open Test Results or the survey to see how data shows up in the app.'
+  ];
+  var i = 0;
+
+  function addBubble(text, who) {
+    var d = document.createElement('div');
+    d.className = 'chat-bubble ' + (who === 'user' ? 'user' : 'bot');
+    d.innerHTML = text;
+    thread.appendChild(d);
+    thread.scrollTop = thread.scrollHeight;
+  }
+
+  function send() {
+    var t = input.value.trim();
+    if (!t) return;
+    addBubble(t.replace(/</g, '&lt;').replace(/>/g, '&gt;'), 'user');
+    input.value = '';
+    var reply = stubs[i % stubs.length];
+    i++;
+    setTimeout(function () {
+      addBubble(reply, 'bot');
+    }, 450);
+  }
+
+  sendBtn.addEventListener('click', send);
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') send();
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ODYL Health — Education</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="phone-frame">
+
+  <div class="status-bar">
+    <span>9:41</span>
+    <div class="status-bar-icons">
+      <span>&#9679;&#9679;&#9679;&#9679;</span>
+      <span>&#x1F50B;</span>
+    </div>
+  </div>
+
+  <div id="odyl-header-mount"></div>
+
+  <div class="page-title">
+    <h2>Education</h2>
+  </div>
+
+  <p class="privacy-note">General health information — not a substitute for clinical care.</p>
+
+  <div class="content-stack">
+    <article class="info-card">
+      <span class="tag">STIs</span>
+      <h3>Testing &amp; prevention</h3>
+      <p>Many STIs have no symptoms. Regular testing helps you stay informed. Condoms and dental dams reduce risk when used correctly every time.</p>
+    </article>
+    <article class="info-card">
+      <span class="tag">Communication</span>
+      <h3>Talking with partners</h3>
+      <p>Open conversations about boundaries, testing history, and protection can feel awkward — and they still matter. Pick a calm moment and use language that feels true to you.</p>
+    </article>
+    <article class="info-card">
+      <span class="tag">Consent</span>
+      <h3>Healthy relationships</h3>
+      <p>Consent is ongoing, specific, and reversible. You can change your mind at any time. Trusted adults and counselors can help if something feels off.</p>
+    </article>
+    <article class="info-card">
+      <span class="tag">Next steps</span>
+      <h3>When to see a clinician</h3>
+      <p>New symptoms, partner diagnosis, or routine screening are all good reasons to visit a clinic. Use Health Locator to find a site near you.</p>
+    </article>
+  </div>
+
+  <div id="odyl-nav-mount"></div>
+
+</div>
+
+<script src="js/odyl.js"></script>
+<script>
+  ODYL.requirePersona();
+  ODYL.mountHeader('#odyl-header-mount', 'sub');
+  ODYL.mountBottomNav('#odyl-nav-mount', 'none');
+</script>
+
+</body>
+</html>

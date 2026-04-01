@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ODYL Health</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="phone-frame">
+
+  <div class="status-bar">
+    <span>9:41</span>
+    <div class="status-bar-icons">
+      <span>&#9679;&#9679;&#9679;&#9679;</span>
+      <span>&#x1F50B;</span>
+    </div>
+  </div>
+
+  <div id="odyl-header-mount"></div>
+
+  <div class="welcome-banner">
+    <h2 id="welcome-text">Welcome</h2>
+  </div>
+
+  <div class="carousel-viewport">
+    <div class="carousel-pages" id="carousel-pages" data-page="0">
+      <div class="carousel-panel">
+        <div class="dashboard-card">
+          <div class="feature-grid">
+            <a href="calendar.html" class="feature-tile">
+              <div class="feature-icon" data-icon="calendar"></div>
+              <span class="feature-label">Calendar</span>
+            </a>
+            <a href="locator.html" class="feature-tile">
+              <div class="feature-icon" data-icon="mapPin"></div>
+              <span class="feature-label">Health Locator</span>
+            </a>
+            <a href="results.html" class="feature-tile">
+              <div class="feature-icon" data-icon="clipboard"></div>
+              <span class="feature-label">Test Results</span>
+            </a>
+            <a href="support.html" class="feature-tile">
+              <div class="feature-icon" data-icon="heartHands"></div>
+              <span class="feature-label">Health Support</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="carousel-panel">
+        <div class="dashboard-card">
+          <div class="feature-grid">
+            <a href="education.html" class="feature-tile">
+              <div class="feature-icon" data-icon="book"></div>
+              <span class="feature-label">Education</span>
+            </a>
+            <a href="lumi.html" class="feature-tile">
+              <div class="feature-icon" data-icon="chat"></div>
+              <span class="feature-label">LUMI.AI</span>
+            </a>
+            <a href="survey.html" class="feature-tile">
+              <div class="feature-icon" data-icon="survey"></div>
+              <span class="feature-label">Risk Survey</span>
+            </a>
+            <a href="profile.html" class="feature-tile">
+              <div class="feature-icon" data-icon="gear"></div>
+              <span class="feature-label">Profile</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-dots" role="tablist" aria-label="Dashboard pages">
+    <button type="button" class="page-dot active" data-go="0" role="tab" aria-selected="true" aria-label="Page 1"></button>
+    <button type="button" class="page-dot" data-go="1" role="tab" aria-selected="false" aria-label="Page 2"></button>
+  </div>
+
+  <a href="rewards.html" class="rewards-bar">
+    <div class="rewards-bar-left">
+      <h3>View Your Rewards</h3>
+    </div>
+    <div class="rewards-bar-center">
+      <span class="rewards-medal-wrap" id="rewards-medal-wrap"></span>
+      <span class="rewards-points" id="rewards-points">50 Points</span>
+    </div>
+    <div class="rewards-arrow" aria-hidden="true">&#8594;</div>
+  </a>
+
+  <div id="odyl-nav-mount"></div>
+
+</div>
+
+<script src="js/odyl.js"></script>
+<script>
+  (function () {
+    var persona = ODYL.requirePersona();
+    if (!persona) return;
+
+    ODYL.mountHeader('#odyl-header-mount', 'home');
+    ODYL.mountBottomNav('#odyl-nav-mount', 'home');
+
+    document.getElementById('welcome-text').textContent = 'Welcome, ' + persona.First_Name;
+    document.getElementById('rewards-points').textContent = (persona.rewards != null ? persona.rewards : 50) + ' Points';
+    document.getElementById('rewards-medal-wrap').innerHTML = ODYL.Icons.medal();
+
+    document.querySelectorAll('.feature-icon[data-icon]').forEach(function (el) {
+      var k = el.getAttribute('data-icon');
+      if (ODYL.Icons[k]) el.innerHTML = ODYL.Icons[k]();
+    });
+
+    var pages = document.getElementById('carousel-pages');
+    var dots = document.querySelectorAll('.page-dot[data-go]');
+    dots.forEach(function (dot) {
+      dot.addEventListener('click', function () {
+        var go = dot.getAttribute('data-go');
+        pages.setAttribute('data-page', go);
+        dots.forEach(function (d) {
+          var on = d === dot;
+          d.classList.toggle('active', on);
+          d.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>

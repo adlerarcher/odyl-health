@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ODYL Health - Test Results</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="phone-frame">
+
+  <div class="status-bar">
+    <span>9:41</span>
+    <div class="status-bar-icons">
+      <span>&#9679;&#9679;&#9679;&#9679;</span>
+      <span>&#x1F50B;</span>
+    </div>
+  </div>
+
+  <div id="odyl-header-mount"></div>
+
+  <div class="page-title">
+    <h2>Test Results</h2>
+  </div>
+
+  <p class="privacy-note">Results are private and secure.</p>
+
+  <div class="results-intro" id="results-intro">
+    <button type="button" class="cta-pill-serif" id="btn-view-results">view your results</button>
+  </div>
+
+  <div class="results-scroll-area hidden-until-reveal" id="results-reveal">
+    <div class="visit-header" id="visit-header"></div>
+
+    <div class="results-container" id="results-container"></div>
+
+    <div class="results-actions">
+      <button type="button" class="action-btn coral" id="btn-followup">Schedule Follow-Up</button>
+      <button type="button" class="action-btn purple" id="btn-share">Share Results</button>
+    </div>
+  </div>
+
+  <div class="results-floating-actions">
+    <a href="lumi.html" title="LUMI.AI chat"><span id="fab-lumi"></span></a>
+    <a href="support.html" title="Health support"><span id="fab-support"></span></a>
+  </div>
+
+  <div id="odyl-nav-mount"></div>
+
+</div>
+
+<script src="js/odyl.js"></script>
+<script>
+(function () {
+  var persona = ODYL.requirePersona();
+  if (!persona) return;
+
+  ODYL.mountHeader('#odyl-header-mount', 'sub');
+  ODYL.mountBottomNav('#odyl-nav-mount', 'results');
+
+  document.getElementById('fab-lumi').innerHTML = ODYL.Icons.plane();
+  document.getElementById('fab-support').innerHTML = ODYL.Icons.envelope();
+
+  var container = document.getElementById('results-container');
+  var header = document.getElementById('visit-header');
+  var reveal = document.getElementById('results-reveal');
+  var intro = document.getElementById('results-intro');
+
+  function buildResults() {
+    if (persona.tests && persona.tests.length > 0) {
+      var sorted = persona.tests.slice().sort(function (a, b) {
+        return new Date(b.date) - new Date(a.date);
+      });
+
+      var latest = sorted[0];
+      var dateObj = new Date(latest.date);
+      var dateStr = dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      header.innerHTML = '<h3>Most Recent Visit</h3><p>' + dateStr + ' &middot; ' + latest.location + '</p>';
+
+      sorted.forEach(function (test) {
+        var card = document.createElement('div');
+        card.className = 'result-card';
+
+        var d = new Date(test.date);
+        var dateDisplay = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+        var badgeClass = 'negative';
+        if (test.result === 'Positive') badgeClass = 'positive';
+        if (test.result === 'Indeterminate') badgeClass = 'indeterminate';
+
+        card.innerHTML =
+          '<div class="result-info">' +
+          '<h4>' +
+          test.type +
+          '</h4>' +
+          '<p>' +
+          dateDisplay +
+          ' &middot; ' +
+          test.location +
+          '</p>' +
+          '</div>' +
+          '<div class="result-badge ' +
+          badgeClass +
+          '">' +
+          test.result +
+          '</div>';
+
+        container.appendChild(card);
+      });
+    } else {
+      header.innerHTML = '';
+      container.innerHTML =
+        '<div style="text-align:center; padding:32px 16px;">' +
+        '<div style="display:flex;justify-content:center;margin-bottom:12px;">' +
+        ODYL.Icons.clipboard() +
+        '</div>' +
+        '<h3 style="font-family:var(--font-display); font-size:16px; margin-bottom:8px; color:var(--text-dark);">No Test Results Yet</h3>' +
+        '<p style="font-size:13px; color:var(--text-medium); line-height:1.5;">When you get tested, your results will appear here. Use the Health Locator to find a testing site near you.</p>' +
+        '</div>';
+    }
+  }
+
+  document.getElementById('btn-view-results').addEventListener('click', function () {
+    buildResults();
+    reveal.classList.add('visible');
+    intro.style.display = 'none';
+  });
+
+  document.getElementById('btn-followup').addEventListener('click', function () {
+    window.location.href = 'locator.html';
+  });
+  document.getElementById('btn-share').addEventListener('click', function () {
+    alert('Sharing is not connected in Phase 1.');
+  });
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ODYL Health — Profile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="phone-frame">
+
+  <div class="status-bar">
+    <span>9:41</span>
+    <div class="status-bar-icons">
+      <span>&#9679;&#9679;&#9679;&#9679;</span>
+      <span>&#x1F50B;</span>
+    </div>
+  </div>
+
+  <div id="odyl-header-mount"></div>
+
+  <div class="page-title">
+    <h2>Profile</h2>
+  </div>
+
+  <div class="content-stack">
+    <div class="info-card">
+      <div class="profile-header">
+        <div class="profile-avatar-lg" id="profile-avatar">AA</div>
+        <div>
+          <h3 id="profile-name" style="margin-bottom:4px;">Persona</h3>
+          <p style="font-size:12px;color:var(--text-medium);" id="profile-id">ID</p>
+        </div>
+      </div>
+      <dl class="profile-dl">
+        <dt>Date of birth</dt>
+        <dd id="v-dob">—</dd>
+        <dt>Gender</dt>
+        <dd id="v-gender">—</dd>
+        <dt>Race / ethnicity</dt>
+        <dd id="v-race">—</dd>
+        <dt>Rewards</dt>
+        <dd id="v-rewards">—</dd>
+      </dl>
+    </div>
+
+    <div class="info-card">
+      <h3>About this prototype</h3>
+      <p>ODYL Health Phase 1 runs entirely in your browser. Personas are synthetic — no real PHI, no backend, no authentication.</p>
+    </div>
+
+    <button type="button" class="action-btn coral" id="btn-switch">Switch persona</button>
+    <button type="button" class="action-btn outline-dark" id="btn-logout">Sign out</button>
+  </div>
+
+  <div id="odyl-nav-mount"></div>
+
+</div>
+
+<script src="js/odyl.js"></script>
+<script>
+  var persona = ODYL.requirePersona();
+  ODYL.mountHeader('#odyl-header-mount', 'home');
+  ODYL.mountBottomNav('#odyl-nav-mount', 'none');
+
+  var bgColors = ['#f97085', '#e88a3a', '#7ec89b', '#b491d1', '#5dade2', '#f4a460'];
+  var initials = persona.First_Name[0] + persona.Last_Name[0];
+  var av = document.getElementById('profile-avatar');
+  av.textContent = initials;
+  av.style.background = bgColors[(persona.bg || 1) - 1] || bgColors[0];
+
+  document.getElementById('profile-name').textContent = persona.First_Name + ' ' + persona.Last_Name;
+  document.getElementById('profile-id').textContent = 'User ' + persona.User_ID;
+  document.getElementById('v-dob').textContent = persona.DOB;
+  document.getElementById('v-gender').textContent = persona.Gender;
+  document.getElementById('v-race').textContent = persona.Race_Ethnicity;
+  document.getElementById('v-rewards').textContent = (persona.rewards != null ? persona.rewards : 0) + ' pts';
+
+  document.getElementById('btn-switch').addEventListener('click', function () {
+    ODYL.clearPersona();
+    window.location.href = 'login.html';
+  });
+  document.getElementById('btn-logout').addEventListener('click', function () {
+    ODYL.logout();
+  });
+</script>
+
+</body>
+</html>

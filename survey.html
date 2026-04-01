@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ODYL Health - Survey</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="phone-frame" style="min-height: auto;">
+
+  <div class="status-bar">
+    <span>9:41</span>
+    <div class="status-bar-icons">
+      <span>&#9679;&#9679;&#9679;&#9679;</span>
+      <span>&#x1F50B;</span>
+    </div>
+  </div>
+
+  <div id="odyl-header-mount"></div>
+
+  <div class="page-title">
+    <h2>Prepare Before You Get There</h2>
+  </div>
+
+  <p class="privacy-note" style="margin-bottom:8px;">Adapted from the CDC risk survey. Your answers stay on this device.</p>
+
+  <div class="survey-container" id="survey-container">
+
+    <div class="survey-question" data-q="1">
+      <h3>1.</h3>
+      <p>Have you had vaginal, anal, or oral sex without a condom in the past 12 months?</p>
+      <div class="survey-options">
+        <div class="survey-option" data-val="1" onclick="selectOption(this)">
+          <div class="survey-radio"></div> Yes
+        </div>
+        <div class="survey-option" data-val="0" onclick="selectOption(this)">
+          <div class="survey-radio"></div> No
+        </div>
+      </div>
+      <div class="survey-feedback" data-show="1">Correctly using condoms and other barriers every time you have sex can reduce the risk of STIs, including HIV. There are other ways to reduce or even avoid STI risk. Choose the prevention steps that work for you.</div>
+      <div class="survey-feedback" data-show="0">Great! Continue choosing the prevention methods that work for you.</div>
+    </div>
+
+    <div class="survey-question" data-q="2">
+      <h3>2.</h3>
+      <p>Who have you had sex with in the past 12 months?</p>
+      <div class="survey-options">
+        <div class="survey-option" data-val="1" onclick="selectOption(this)">
+          <div class="survey-radio"></div> Men Only
+        </div>
+        <div class="survey-option" data-val="2" onclick="selectOption(this)">
+          <div class="survey-radio"></div> Women Only
+        </div>
+        <div class="survey-option" data-val="3" onclick="selectOption(this)">
+          <div class="survey-radio"></div> More than one type of partner
+        </div>
+      </div>
+    </div>
+
+    <div class="survey-question" data-q="3">
+      <h3>3.</h3>
+      <p>How many sexual partners have you had in the last 90 days?</p>
+      <div class="survey-options">
+        <div class="survey-option" data-val="1" onclick="selectOption(this)">
+          <div class="survey-radio"></div> 10 or more
+        </div>
+        <div class="survey-option" data-val="2" onclick="selectOption(this)">
+          <div class="survey-radio"></div> 5 to 9
+        </div>
+        <div class="survey-option" data-val="3" onclick="selectOption(this)">
+          <div class="survey-radio"></div> 2 to 4
+        </div>
+        <div class="survey-option" data-val="4" onclick="selectOption(this)">
+          <div class="survey-radio"></div> 0 to 1
+        </div>
+      </div>
+    </div>
+
+    <div class="survey-question" data-q="4">
+      <h3>4.</h3>
+      <p>Have you ever had an STI, including HIV?</p>
+      <div class="survey-options">
+        <div class="survey-option" data-val="1" onclick="selectOption(this)">
+          <div class="survey-radio"></div> Yes
+        </div>
+        <div class="survey-option" data-val="2" onclick="selectOption(this)">
+          <div class="survey-radio"></div> No
+        </div>
+        <div class="survey-option" data-val="3" onclick="selectOption(this)">
+          <div class="survey-radio"></div> I don't know
+        </div>
+      </div>
+      <div class="survey-feedback" data-show="1">Having had an STI before could place you at greater risk of having or getting one now. Be sure to tell your healthcare provider if you have had STIs before. They are common, so no judgment!</div>
+      <div class="survey-feedback" data-show="2">Continue choosing the prevention methods that work for you!</div>
+      <div class="survey-feedback" data-show="3">If you don't know, that's okay! These infections don't always cause symptoms. Getting a test or talking to your healthcare provider about testing is important if you are having sex.</div>
+    </div>
+
+    <div class="survey-question" data-q="5">
+      <h3>5.</h3>
+      <p>Have any of your partners had an STI?</p>
+      <div class="survey-options">
+        <div class="survey-option" data-val="1" onclick="selectOption(this)">
+          <div class="survey-radio"></div> Yes
+        </div>
+        <div class="survey-option" data-val="2" onclick="selectOption(this)">
+          <div class="survey-radio"></div> No
+        </div>
+        <div class="survey-option" data-val="3" onclick="selectOption(this)">
+          <div class="survey-radio"></div> I don't know
+        </div>
+      </div>
+      <div class="survey-feedback" data-show="1">Knowing if your partner has an STI is good information for making choices about your sexual health. Talk to your healthcare provider for the best advice based on your situation.</div>
+      <div class="survey-feedback" data-show="2">Having a conversation about STIs is always a good idea. Whatever you learn can inform how you choose to protect yourself.</div>
+      <div class="survey-feedback" data-show="3">It's possible to not know if your partner has an STI. Having a conversation about STIs is a good first step. Your healthcare provider can help you navigate next steps.</div>
+    </div>
+
+    <div class="survey-question" data-q="6">
+      <h3>6.</h3>
+      <p>Have you or any of your partners ever used illicit substances?</p>
+      <div class="survey-options">
+        <div class="survey-option" data-val="1" onclick="selectOption(this)">
+          <div class="survey-radio"></div> Yes
+        </div>
+        <div class="survey-option" data-val="2" onclick="selectOption(this)">
+          <div class="survey-radio"></div> No
+        </div>
+        <div class="survey-option" data-val="3" onclick="selectOption(this)">
+          <div class="survey-radio"></div> I don't know
+        </div>
+      </div>
+      <div class="survey-feedback" data-show="1">Having sex while using drugs can make you more likely to engage in risky sexual behavior. Correctly using condoms every time you have sex can reduce the risk of infections.</div>
+    </div>
+
+    <div class="survey-question" data-q="7">
+      <h3>7.</h3>
+      <p>Have you exchanged sex for needs (money, housing, drugs, etc.) in the past 12 months?</p>
+      <div class="survey-options">
+        <div class="survey-option" data-val="1" onclick="selectOption(this)">
+          <div class="survey-radio"></div> Yes
+        </div>
+        <div class="survey-option" data-val="2" onclick="selectOption(this)">
+          <div class="survey-radio"></div> No
+        </div>
+      </div>
+      <div class="survey-feedback" data-show="1">If you exchange sex, it's important to get tested regularly for HIV and other STIs. Choose the prevention steps that work for you, including condoms and medication to prevent HIV infection.</div>
+    </div>
+
+    <div class="survey-question" data-q="8">
+      <h3>8.</h3>
+      <p>Is it possible that any of your sex partners in the past 12 months had sex with someone else while in a relationship with you?</p>
+      <div class="survey-options">
+        <div class="survey-option" data-val="1" onclick="selectOption(this)">
+          <div class="survey-radio"></div> Yes
+        </div>
+        <div class="survey-option" data-val="2" onclick="selectOption(this)">
+          <div class="survey-radio"></div> No
+        </div>
+        <div class="survey-option" data-val="3" onclick="selectOption(this)">
+          <div class="survey-radio"></div> I don't know
+        </div>
+      </div>
+      <div class="survey-feedback" data-show="1">Whether you're mutually monogamous or not, it's important to talk to your partner about STIs. In addition to mutual monogamy, there are other ways to reduce or avoid STI risk.</div>
+      <div class="survey-feedback" data-show="2">Agreeing to be in a long-term mutually monogamous relationship with a partner who does not have an STI is a great way to avoid infection. Continue having open conversations!</div>
+      <div class="survey-feedback" data-show="3">If you're not sure, this could be a good time to have that conversation. It's possible they have an infection but don't know it.</div>
+    </div>
+
+    <button type="button" class="action-btn coral" style="margin:0 0 24px;" onclick="completeSurvey()">COMPLETE SURVEY</button>
+
+  </div>
+
+  <div id="odyl-nav-mount"></div>
+
+</div>
+
+<script src="js/odyl.js"></script>
+<script>
+  var persona = ODYL.requirePersona();
+  if (!persona) return;
+
+  ODYL.mountHeader('#odyl-header-mount', 'sub');
+  ODYL.mountBottomNav('#odyl-nav-mount', 'survey');
+
+  function selectOption(el) {
+    var question = el.closest('.survey-question');
+    var val = el.dataset.val;
+
+    question.querySelectorAll('.survey-option').forEach(function (o) {
+      o.classList.remove('selected');
+    });
+    el.classList.add('selected');
+
+    question.querySelectorAll('.survey-feedback').forEach(function (f) {
+      f.classList.remove('visible');
+    });
+    var feedback = question.querySelector('.survey-feedback[data-show="' + val + '"]');
+    if (feedback) feedback.classList.add('visible');
+  }
+
+  if (persona.survey) {
+    Object.entries(persona.survey).forEach(function (entry) {
+      var key = entry[0];
+      var val = entry[1];
+      var qNum = key.replace('Q', '');
+      var question = document.querySelector('.survey-question[data-q="' + qNum + '"]');
+      if (question && val !== undefined) {
+        var option = question.querySelector('.survey-option[data-val="' + val + '"]');
+        if (option) selectOption(option);
+      }
+    });
+  }
+
+  function completeSurvey() {
+    var survey = {};
+    for (var i = 1; i <= 8; i++) {
+      var q = document.querySelector('.survey-question[data-q="' + i + '"]');
+      var sel = q ? q.querySelector('.survey-option.selected') : null;
+      survey['Q' + i] = sel ? parseInt(sel.dataset.val, 10) : undefined;
+    }
+    persona.survey = survey;
+    ODYL.setPersona(persona);
+    alert('Survey responses saved on this device. Thank you, ' + persona.First_Name + '!');
+  }
+</script>
+
+</body>
+</html>

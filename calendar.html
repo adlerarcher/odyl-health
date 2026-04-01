@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ODYL Health - Calendar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="phone-frame">
+
+  <div class="status-bar">
+    <span>9:41</span>
+    <div class="status-bar-icons">
+      <span>&#9679;&#9679;&#9679;&#9679;</span>
+      <span>&#x1F50B;</span>
+    </div>
+  </div>
+
+  <div id="odyl-header-mount"></div>
+
+  <div class="page-title">
+    <h2>Calendar</h2>
+  </div>
+
+  <div class="calendar-container">
+    <div class="calendar-nav">
+      <button type="button" id="prev-month">&#x25C0;</button>
+      <h3 id="month-label">April 2026</h3>
+      <button type="button" id="next-month">&#x25B6;</button>
+    </div>
+    <div class="calendar-grid" id="calendar-grid"></div>
+  </div>
+
+  <div class="action-buttons">
+    <button type="button" class="action-btn coral" id="btn-log-activity">LOG SEXUAL ACTIVITY</button>
+    <button type="button" class="action-btn purple" id="btn-reminder">SCHEDULE REMINDER</button>
+    <button type="button" class="action-btn green" id="btn-menstrual">LOG MENSTRUAL CYCLE</button>
+  </div>
+
+  <div id="odyl-nav-mount"></div>
+
+  <div class="modal-overlay" id="activity-modal">
+    <div class="modal-content">
+      <button type="button" class="modal-close" id="modal-close">&#x2716;</button>
+
+      <div class="modal-date" id="modal-date">Wednesday, April 1 - 2026</div>
+
+      <div class="modal-section">
+        <h4>Select Activities:</h4>
+        <div class="checkbox-group">
+          <label class="checkbox-item"><input type="checkbox"> Vaginal Sex</label>
+          <label class="checkbox-item"><input type="checkbox"> Anal Sex</label>
+          <label class="checkbox-item"><input type="checkbox"> Oral Sex</label>
+          <label class="checkbox-item"><input type="checkbox"> Mutual Masturbation</label>
+          <label class="checkbox-item">Other: <input type="text" placeholder=""></label>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <h4>Protection Use:</h4>
+        <div class="checkbox-group">
+          <label class="checkbox-item"><input type="checkbox"> Condom</label>
+          <label class="checkbox-item"><input type="checkbox"> Birth Control</label>
+          <label class="checkbox-item"><input type="checkbox"> Dental Dam</label>
+          <label class="checkbox-item"><input type="checkbox"> Diaphragm</label>
+          <label class="checkbox-item">Other: <input type="text" placeholder=""></label>
+        </div>
+      </div>
+
+      <div class="modal-field">
+        <span>Partner(s):</span>
+        <input type="text" placeholder="">
+      </div>
+
+      <button type="button" class="submit-btn" id="submit-entry">SUBMIT ENTRY</button>
+    </div>
+  </div>
+
+</div>
+
+<script src="js/odyl.js"></script>
+<script>
+(function () {
+  var persona = ODYL.requirePersona();
+  if (!persona) return;
+
+  ODYL.mountHeader('#odyl-header-mount', 'sub');
+  ODYL.mountBottomNav('#odyl-nav-mount', 'calendar');
+
+  var currentDate = new Date();
+  var currentMonth = currentDate.getMonth();
+  var currentYear = currentDate.getFullYear();
+  var selectedDay = null;
+
+  var events = JSON.parse(localStorage.getItem('odyl_events_' + persona.User_ID) || '{}');
+
+  var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  function renderCalendar() {
+    var grid = document.getElementById('calendar-grid');
+    grid.innerHTML = '';
+
+    document.getElementById('month-label').textContent = months[currentMonth] + ' ' + currentYear;
+
+    days.forEach(function (d) {
+      var el = document.createElement('div');
+      el.className = 'day-header';
+      el.textContent = d;
+      grid.appendChild(el);
+    });
+
+    var firstDay = new Date(currentYear, currentMonth, 1).getDay();
+    var daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    var daysInPrev = new Date(currentYear, currentMonth, 0).getDate();
+
+    var i;
+    for (i = firstDay - 1; i >= 0; i--) {
+      var elPrev = document.createElement('div');
+      elPrev.className = 'day other-month';
+      elPrev.textContent = daysInPrev - i;
+      grid.appendChild(elPrev);
+    }
+
+    var today = new Date();
+    for (var d = 1; d <= daysInMonth; d++) {
+      (function (dayNum) {
+        var el = document.createElement('div');
+        el.className = 'day';
+
+        var dateKey =
+          currentYear +
+          '-' +
+          String(currentMonth + 1).padStart(2, '0') +
+          '-' +
+          String(dayNum).padStart(2, '0');
+
+        if (dayNum === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear()) {
+          el.classList.add('today');
+        }
+
+        if (events[dateKey]) {
+          el.classList.add('has-event');
+        }
+
+        el.textContent = dayNum;
+        el.addEventListener('click', function () {
+          selectedDay = dateKey;
+          var dateObj = new Date(currentYear, currentMonth, dayNum);
+          var dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+          var monthName = dateObj.toLocaleDateString('en-US', { month: 'long' });
+          document.getElementById('modal-date').textContent =
+            dayName + ', ' + monthName + ' ' + dayNum + ' - ' + currentYear;
+          document.getElementById('activity-modal').classList.add('active');
+        });
+
+        grid.appendChild(el);
+      })(d);
+    }
+
+    var totalCells = firstDay + daysInMonth;
+    var remaining = (7 - (totalCells % 7)) % 7;
+    for (var j = 1; j <= remaining; j++) {
+      var elNext = document.createElement('div');
+      elNext.className = 'day other-month';
+      elNext.textContent = j;
+      grid.appendChild(elNext);
+    }
+  }
+
+  document.getElementById('prev-month').addEventListener('click', function () {
+    currentMonth--;
+    if (currentMonth < 0) {
+      currentMonth = 11;
+      currentYear--;
+    }
+    renderCalendar();
+  });
+
+  document.getElementById('next-month').addEventListener('click', function () {
+    currentMonth++;
+    if (currentMonth > 11) {
+      currentMonth = 0;
+      currentYear++;
+    }
+    renderCalendar();
+  });
+
+  document.getElementById('btn-log-activity').addEventListener('click', function () {
+    var today = new Date();
+    selectedDay =
+      today.getFullYear() +
+      '-' +
+      String(today.getMonth() + 1).padStart(2, '0') +
+      '-' +
+      String(today.getDate()).padStart(2, '0');
+    var dayName = today.toLocaleDateString('en-US', { weekday: 'long' });
+    var monthName = today.toLocaleDateString('en-US', { month: 'long' });
+    document.getElementById('modal-date').textContent =
+      dayName + ', ' + monthName + ' ' + today.getDate() + ' - ' + today.getFullYear();
+    document.getElementById('activity-modal').classList.add('active');
+  });
+
+  document.getElementById('btn-reminder').addEventListener('click', function () {
+    alert('Reminder scheduling is a placeholder in Phase 1.');
+  });
+  document.getElementById('btn-menstrual').addEventListener('click', function () {
+    alert('Menstrual logging is a placeholder in Phase 1.');
+  });
+
+  document.getElementById('modal-close').addEventListener('click', function () {
+    document.getElementById('activity-modal').classList.remove('active');
+  });
+
+  document.getElementById('submit-entry').addEventListener('click', function () {
+    if (selectedDay) {
+      events[selectedDay] = true;
+      localStorage.setItem('odyl_events_' + persona.User_ID, JSON.stringify(events));
+      document.getElementById('activity-modal').classList.remove('active');
+      renderCalendar();
+    }
+  });
+
+  renderCalendar();
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ODYL Health — Rewards</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="phone-frame">
+
+  <div class="status-bar">
+    <span>9:41</span>
+    <div class="status-bar-icons">
+      <span>&#9679;&#9679;&#9679;&#9679;</span>
+      <span>&#x1F50B;</span>
+    </div>
+  </div>
+
+  <div id="odyl-header-mount"></div>
+
+  <div class="page-title">
+    <h2>Your Rewards</h2>
+  </div>
+
+  <div class="rewards-hero">
+    <p style="font-size:13px;color:var(--text-medium);margin-bottom:4px;">Total points</p>
+    <div class="big-points" id="reward-total">50</div>
+    <p style="font-size:12px;color:var(--text-medium);margin-top:8px;">Phase 1 · redemptions coming later</p>
+  </div>
+
+  <div class="content-stack" style="margin-top:0;">
+    <div class="info-card">
+      <h3>How you earn (demo)</h3>
+      <ul class="rewards-list" id="rewards-list">
+        <!-- JS -->
+      </ul>
+    </div>
+    <div class="info-card">
+      <h3>Redeem</h3>
+      <p>Reward redemption will connect to program rules in a future phase. For now, points reflect your persona&rsquo;s starting balance.</p>
+      <button type="button" class="action-btn coral" style="margin-top:14px;opacity:0.65;cursor:not-allowed;" disabled>Redeem (soon)</button>
+    </div>
+  </div>
+
+  <div id="odyl-nav-mount"></div>
+
+</div>
+
+<script src="js/odyl.js"></script>
+<script>
+  var persona = ODYL.requirePersona();
+  ODYL.mountHeader('#odyl-header-mount', 'sub');
+  ODYL.mountBottomNav('#odyl-nav-mount', 'none');
+
+  var total = persona.rewards != null ? persona.rewards : 50;
+  document.getElementById('reward-total').textContent = total;
+
+  var rows = [
+    { label: 'Welcome bonus', pts: Math.min(25, total) },
+    { label: 'Profile activities (demo)', pts: Math.max(0, total - 25) }
+  ];
+  var list = document.getElementById('rewards-list');
+  rows.forEach(function (r) {
+    var li = document.createElement('li');
+    li.innerHTML = '<span>' + r.label + '</span><span>+' + r.pts + '</span>';
+    list.appendChild(li);
+  });
+</script>
+
+</body>
+</html>

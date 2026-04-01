@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ODYL Health — Lock</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="phone-frame" id="lock-frame">
+
+  <div class="status-bar">
+    <span id="lock-clock-mini">9:41</span>
+    <div class="status-bar-icons">
+      <span>&#9679;&#9679;&#9679;&#9679;</span>
+      <span>&#x1F50B;</span>
+    </div>
+  </div>
+
+  <div class="lock-screen" id="unlock-zone" role="button" tabindex="0" aria-label="Tap to unlock">
+    <div class="lock-time" id="lock-time">9:41</div>
+    <div class="lock-date" id="lock-date">Wednesday, April 1</div>
+    <div class="lock-brand">ODYL</div>
+    <p class="lock-hint">Tap anywhere to continue</p>
+  </div>
+
+  <p class="lock-footer-note">Prototype lock screen. No device security — demo only.</p>
+
+</div>
+
+<script src="js/odyl.js"></script>
+<script>
+(function () {
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+  function tick() {
+    var d = new Date();
+    var h = d.getHours();
+    var m = d.getMinutes();
+    var timeStr = ((h % 12) || 12) + ':' + pad(m);
+    var dateStr = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    var el = document.getElementById('lock-time');
+    var mini = document.getElementById('lock-clock-mini');
+    if (el) el.textContent = timeStr;
+    if (mini) mini.textContent = timeStr;
+    var de = document.getElementById('lock-date');
+    if (de) de.textContent = dateStr;
+  }
+
+  tick();
+  setInterval(tick, 30000);
+
+  function goNext() {
+    if (ODYL.getPersona()) {
+      window.location.href = 'index.html';
+    } else {
+      window.location.href = 'login.html';
+    }
+  }
+
+  var zone = document.getElementById('unlock-zone');
+  zone.addEventListener('click', goNext);
+  zone.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      goNext();
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

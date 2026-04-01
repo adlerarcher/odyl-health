@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ODYL Health — Health Support</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="phone-frame">
+
+  <div class="status-bar">
+    <span>9:41</span>
+    <div class="status-bar-icons">
+      <span>&#9679;&#9679;&#9679;&#9679;</span>
+      <span>&#x1F50B;</span>
+    </div>
+  </div>
+
+  <div id="odyl-header-mount"></div>
+
+  <div class="page-title">
+    <h2>Health Support</h2>
+  </div>
+
+  <p class="privacy-note">Crisis resources are real; this app is still a demo.</p>
+
+  <div class="content-stack">
+    <div class="info-card">
+      <span class="tag">Crisis</span>
+      <h3>If you need help right now</h3>
+      <p style="margin-bottom:10px;">If you or someone else is in immediate danger, call <strong>911</strong>.</p>
+      <p><a class="support-hotline" href="tel:988">988</a> — Suicide &amp; Crisis Lifeline (call or text)</p>
+      <p style="margin-top:8px;"><a class="support-hotline" href="tel:741741">741741</a> — Crisis Text Line (text HOME)</p>
+    </div>
+    <div class="info-card">
+      <span class="tag">Sexual health</span>
+      <h3>Anonymous questions</h3>
+      <p>Many areas offer confidential hotlines for sexual health questions. Ask a trusted clinician or school nurse for local options.</p>
+    </div>
+    <div class="info-card">
+      <span class="tag">ODYL demo</span>
+      <h3>In the full app</h3>
+      <p>This prototype links to LUMI.AI for practice conversations and uses the Health Locator for care sites. No messages leave your device in Phase 1.</p>
+    </div>
+  </div>
+
+  <div id="odyl-nav-mount"></div>
+
+</div>
+
+<script src="js/odyl.js"></script>
+<script>
+  ODYL.requirePersona();
+  ODYL.mountHeader('#odyl-header-mount', 'sub');
+  ODYL.mountBottomNav('#odyl-nav-mount', 'none');
+</script>
+
+</body>
+</html>
