@@ -6,6 +6,7 @@
   'use strict';
 
   var STORAGE_KEY = 'odyl_persona';
+  var LOCK_RETURN_KEY = 'odyl_lock_return';
 
   function getPersona() {
     try {
@@ -38,11 +39,21 @@
   }
 
   function goLock() {
+    try {
+      sessionStorage.setItem(LOCK_RETURN_KEY, getLockReturnPage());
+    } catch (e) {}
     window.location.href = 'lock.html';
   }
 
   function goProfile() {
     window.location.href = 'profile.html';
+  }
+
+  function getLockReturnPage() {
+    var parts = window.location.pathname.split('/').filter(Boolean);
+    var last = parts.length ? parts[parts.length - 1] : 'index.html';
+    if (!last || last.indexOf('.html') === -1) last = 'index.html';
+    return last;
   }
 
   var iconGradSeq = 0;
@@ -172,7 +183,7 @@
 
     return (
       '<div class="app-header">' +
-      '<a href="lock.html" class="header-icon-btn" aria-label="Lock screen">' +
+      '<a href="lock.html" class="header-icon-btn" data-odyl-lock aria-label="Lock screen">' +
       Icons.lock() +
       '</a>' +
       '<span class="logo">ODYL</span>' +
@@ -241,11 +252,24 @@
     }
   }
 
+  function bindLockLink(root) {
+    var link = root.querySelector('[data-odyl-lock]');
+    if (!link) return;
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      try {
+        sessionStorage.setItem(LOCK_RETURN_KEY, getLockReturnPage());
+      } catch (err) {}
+      window.location.href = 'lock.html';
+    });
+  }
+
   function mountHeader(container, variant, options) {
     var el = typeof container === 'string' ? document.querySelector(container) : container;
     if (!el) return;
     el.innerHTML = renderHeader(variant, options);
     bindGearMenu(el);
+    bindLockLink(el);
   }
 
   function renderBottomNav(active) {
@@ -288,6 +312,7 @@
 
   global.ODYL = {
     STORAGE_KEY: STORAGE_KEY,
+    LOCK_RETURN_KEY: LOCK_RETURN_KEY,
     getPersona: getPersona,
     setPersona: setPersona,
     clearPersona: clearPersona,

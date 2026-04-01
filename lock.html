@@ -10,7 +10,7 @@
 </head>
 <body>
 
-<div class="phone-frame" id="lock-frame">
+<div class="phone-frame pin-lock-page" id="pin-lock-frame">
 
   <div class="status-bar">
     <span id="lock-clock-mini">9:41</span>
@@ -20,53 +20,218 @@
     </div>
   </div>
 
-  <div class="lock-screen" id="unlock-zone" role="button" tabindex="0" aria-label="Tap to unlock">
-    <div class="lock-time" id="lock-time">9:41</div>
-    <div class="lock-date" id="lock-date">Wednesday, April 1</div>
-    <div class="lock-brand">ODYL</div>
-    <p class="lock-hint">Tap anywhere to continue</p>
-  </div>
+  <div class="pin-lock-overlay" role="dialog" aria-modal="true" aria-labelledby="pin-lock-title">
+    <div class="pin-lock-brand">ODYL</div>
 
-  <p class="lock-footer-note">Prototype lock screen. No device security — demo only.</p>
+    <h1 class="pin-lock-title" id="pin-lock-title">Enter PIN</h1>
+    <p class="pin-lock-sub" id="pin-lock-sub"></p>
+
+    <div class="pin-dots" id="pin-dots" aria-live="polite">
+      <span class="pin-dot"></span>
+      <span class="pin-dot"></span>
+      <span class="pin-dot"></span>
+      <span class="pin-dot"></span>
+    </div>
+
+    <p class="pin-error" id="pin-error"></p>
+
+    <div class="pin-keypad" id="pin-keypad"></div>
+
+    <p class="pin-lock-disclaimer">PIN is stored only on this device (demo).</p>
+  </div>
 
 </div>
 
-<script src="js/odyl.js"></script>
 <script>
 (function () {
-  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  var PIN_KEY = 'odyl_lock_pin';
+  var RETURN_KEY = 'odyl_lock_return';
 
-  function tick() {
-    var d = new Date();
-    var h = d.getHours();
-    var m = d.getMinutes();
-    var timeStr = ((h % 12) || 12) + ':' + pad(m);
-    var dateStr = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-    var el = document.getElementById('lock-time');
-    var mini = document.getElementById('lock-clock-mini');
-    if (el) el.textContent = timeStr;
-    if (mini) mini.textContent = timeStr;
-    var de = document.getElementById('lock-date');
-    if (de) de.textContent = dateStr;
-  }
-
-  tick();
-  setInterval(tick, 30000);
-
-  function goNext() {
-    if (ODYL.getPersona()) {
-      window.location.href = 'index.html';
-    } else {
-      window.location.href = 'login.html';
+  function getStoredPin() {
+    try {
+      return localStorage.getItem(PIN_KEY);
+    } catch (e) {
+      return null;
     }
   }
 
-  var zone = document.getElementById('unlock-zone');
-  zone.addEventListener('click', goNext);
-  zone.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter' || e.key === ' ') {
+  function savePin(pin) {
+    try {
+      localStorage.setItem(PIN_KEY, pin);
+    } catch (e) {}
+  }
+
+  function redirectAfterUnlock() {
+    var ret = 'index.html';
+    try {
+      ret = sessionStorage.getItem(RETURN_KEY) || ret;
+      sessionStorage.removeItem(RETURN_KEY);
+    } catch (e) {}
+    window.location.href = ret;
+  }
+
+  var hasPin = !!getStoredPin();
+  var mode = hasPin ? 'unlock' : 'set';
+  var setStep = 0;
+  var buffer = '';
+  var firstPin = '';
+
+  var titleEl = document.getElementById('pin-lock-title');
+  var subEl = document.getElementById('pin-lock-sub');
+  var errorEl = document.getElementById('pin-error');
+  var dotsWrap = document.getElementById('pin-dots');
+  var dots = dotsWrap.querySelectorAll('.pin-dot');
+
+  function setTitle() {
+    if (mode === 'unlock') {
+      titleEl.textContent = 'Enter PIN';
+      subEl.textContent = 'Unlock to return to ODYL';
+    } else if (setStep === 0) {
+      titleEl.textContent = 'Create a PIN';
+      subEl.textContent = 'Choose a 4-digit PIN for this device';
+    } else {
+      titleEl.textContent = 'Confirm PIN';
+      subEl.textContent = 'Enter the same PIN again';
+    }
+  }
+
+  function showError(msg) {
+    errorEl.textContent = msg || '';
+    dotsWrap.classList.add('pin-error-shake');
+    setTimeout(function () {
+      dotsWrap.classList.remove('pin-error-shake');
+    }, 400);
+  }
+
+  function clearError() {
+    errorEl.textContent = '';
+  }
+
+  function updateDots() {
+    for (var i = 0; i < 4; i++) {
+      dots[i].classList.toggle('filled', i < buffer.length);
+    }
+  }
+
+  function resetBuffer() {
+    buffer = '';
+    updateDots();
+  }
+
+  function onComplete() {
+    if (mode === 'unlock') {
+      if (buffer === getStoredPin()) {
+        clearError();
+        redirectAfterUnlock();
+      } else {
+        showError('Wrong PIN');
+        resetBuffer();
+      }
+      return;
+    }
+
+    if (setStep === 0) {
+      firstPin = buffer;
+      buffer = '';
+      setStep = 1;
+      clearError();
+      updateDots();
+      setTitle();
+      return;
+    }
+
+    if (buffer === firstPin) {
+      savePin(buffer);
+      clearError();
+      redirectAfterUnlock();
+    } else {
+      showError("PINs don't match. Try again.");
+      setStep = 0;
+      firstPin = '';
+      resetBuffer();
+      setTitle();
+    }
+  }
+
+  function addDigit(d) {
+    clearError();
+    if (buffer.length >= 4) return;
+    buffer += d;
+    updateDots();
+    if (buffer.length === 4) {
+      onComplete();
+    }
+  }
+
+  function backspace() {
+    clearError();
+    buffer = buffer.slice(0, -1);
+    updateDots();
+  }
+
+  function buildKeypad() {
+    var pad = document.getElementById('pin-keypad');
+    var keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    keys.forEach(function (k) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'pin-key';
+      b.textContent = k;
+      b.setAttribute('aria-label', k);
+      b.addEventListener('click', function () {
+        addDigit(k);
+      });
+      pad.appendChild(b);
+    });
+
+    var back = document.createElement('button');
+    back.type = 'button';
+    back.className = 'pin-key pin-key--action';
+    back.innerHTML = '&#9003;';
+    back.setAttribute('aria-label', 'Delete');
+    back.addEventListener('click', backspace);
+    pad.appendChild(back);
+
+    var zero = document.createElement('button');
+    zero.type = 'button';
+    zero.className = 'pin-key';
+    zero.textContent = '0';
+    zero.setAttribute('aria-label', '0');
+    zero.addEventListener('click', function () {
+      addDigit('0');
+    });
+    pad.appendChild(zero);
+
+    var spacer = document.createElement('div');
+    spacer.className = 'pin-key-spacer';
+    spacer.setAttribute('aria-hidden', 'true');
+    pad.appendChild(spacer);
+  }
+
+  function padClock() {
+    function tick() {
+      var d = new Date();
+      var h = d.getHours();
+      var m = d.getMinutes();
+      var timeStr = ((h % 12) || 12) + ':' + (m < 10 ? '0' : '') + m;
+      var el = document.getElementById('lock-clock-mini');
+      if (el) el.textContent = timeStr;
+    }
+    tick();
+    setInterval(tick, 30000);
+  }
+
+  setTitle();
+  buildKeypad();
+  padClock();
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key >= '0' && e.key <= '9') {
       e.preventDefault();
-      goNext();
+      addDigit(e.key);
+    } else if (e.key === 'Backspace') {
+      e.preventDefault();
+      backspace();
     }
   });
 })();
