@@ -180,6 +180,7 @@
 <script>
 (function () {
   function selectOption(el) {
+    if (!el || !el.classList) return;
     var question = el.closest('.survey-question');
     if (!question) return;
     var val = el.getAttribute('data-val');
@@ -197,6 +198,14 @@
     if (feedback) feedback.classList.add('visible');
   }
 
+  /** Clicks can target a Text node; Text has no .closest — normalize to an Element. */
+  function elementFromEventTarget(t) {
+    if (!t) return null;
+    if (t.nodeType === 1) return t;
+    if (t.nodeType === 3 && t.parentElement) return t.parentElement;
+    return null;
+  }
+
   function prefillFromPersona(persona) {
     if (!persona || !persona.survey) return;
     Object.entries(persona.survey).forEach(function (entry) {
@@ -212,14 +221,14 @@
   }
 
   function completeSurvey() {
-    var persona = ODYL.getPersona();
+    var persona = typeof ODYL !== 'undefined' && ODYL.getPersona ? ODYL.getPersona() : null;
     var survey = {};
     for (var i = 1; i <= 8; i++) {
       var q = document.querySelector('.survey-question[data-q="' + i + '"]');
       var sel = q ? q.querySelector('.survey-option.selected') : null;
       survey['Q' + i] = sel ? parseInt(sel.getAttribute('data-val'), 10) : undefined;
     }
-    if (persona) {
+    if (persona && typeof ODYL !== 'undefined' && ODYL.setPersona) {
       persona.survey = survey;
       ODYL.setPersona(persona);
       alert('Survey responses saved on this device. Thank you, ' + persona.First_Name + '!');
@@ -231,12 +240,13 @@
     }
   }
 
-  ODYL.mountHeader('#odyl-header-mount', 'sub');
-  ODYL.mountBottomNav('#odyl-nav-mount', 'survey');
-
   var container = document.getElementById('survey-container');
+  if (!container) return;
+
   container.addEventListener('click', function (e) {
-    var opt = e.target.closest('.survey-option');
+    var el = elementFromEventTarget(e.target);
+    if (!el || !el.closest) return;
+    var opt = el.closest('.survey-option');
     if (!opt || !container.contains(opt)) return;
     e.preventDefault();
     selectOption(opt);
@@ -244,15 +254,26 @@
 
   container.addEventListener('keydown', function (e) {
     if (e.key !== 'Enter' && e.key !== ' ') return;
-    var opt = e.target.closest('.survey-option');
+    var el = elementFromEventTarget(e.target);
+    if (!el || !el.closest) return;
+    var opt = el.closest('.survey-option');
     if (!opt || !container.contains(opt)) return;
     e.preventDefault();
     selectOption(opt);
   });
 
-  document.getElementById('survey-complete-btn').addEventListener('click', completeSurvey);
+  var completeBtn = document.getElementById('survey-complete-btn');
+  if (completeBtn) completeBtn.addEventListener('click', completeSurvey);
 
-  prefillFromPersona(ODYL.getPersona());
+  if (typeof ODYL !== 'undefined') {
+    try {
+      ODYL.mountHeader('#odyl-header-mount', 'sub');
+      ODYL.mountBottomNav('#odyl-nav-mount', 'survey');
+    } catch (err) {}
+    try {
+      prefillFromPersona(ODYL.getPersona ? ODYL.getPersona() : null);
+    } catch (err2) {}
+  }
 })();
 </script>
 
