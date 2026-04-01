@@ -698,13 +698,21 @@ body {
    NAV BAR (bottom)
    ================================ */
 
+#odyl-nav-mount {
+  margin-top: auto;
+  flex-shrink: 0;
+  width: 100%;
+  align-self: stretch;
+}
+
 .bottom-nav {
   display: flex;
   justify-content: space-around;
   align-items: center;
+  flex-shrink: 0;
   padding: 12px 0 28px;
+  padding-bottom: max(28px, env(safe-area-inset-bottom));
   background: rgba(255,255,255,0.15);
-  margin-top: auto;
 }
 
 .nav-item {
