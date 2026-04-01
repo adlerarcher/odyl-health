@@ -43,12 +43,45 @@
   ODYL.mountBottomNav('#odyl-nav-mount', 'none');
 
   var persona = ODYL.getPersona();
+  var MAPS_PREFIX = 'https://maps.google.com/maps?q=';
+  var IWTK_URL = 'https://iwantthekit.org/';
+
+  function isIWantTheKit(name) {
+    return name && /iwantthekit/i.test(String(name).replace(/\s/g, ''));
+  }
+
+  function locatorHref(s) {
+    if (s.url) return s.url;
+    if (s.address) return MAPS_PREFIX + encodeURIComponent(s.address);
+    return '';
+  }
+
   var sites = [
-    { name: 'Johns Hopkins Holy Cross Hospital', line: '5201 Norwood Ave, Baltimore, MD · STI testing' },
-    { name: 'Chase Brexton Health Services', line: '1111 N Charles St, Baltimore, MD · Primary &amp; sexual health' },
-    { name: 'Baltimore City Health Department', line: '1001 E Fayette St, Baltimore, MD · Public health' },
-    { name: 'IWantTheKit (mail-in)', line: 'Maryland home collection — order online' },
-    { name: 'LabCorp Patient Service Center', line: 'Various locations · Lab orders' }
+    {
+      name: 'Johns Hopkins Holy Cross Hospital',
+      line: '5201 Norwood Ave, Baltimore, MD · STI testing',
+      address: '5201 Norwood Ave, Baltimore, MD'
+    },
+    {
+      name: 'Chase Brexton Health Services',
+      line: '1111 N Charles St, Baltimore, MD · Primary &amp; sexual health',
+      address: '1111 N Charles St, Baltimore, MD'
+    },
+    {
+      name: 'Baltimore City Health Department',
+      line: '1001 E Fayette St, Baltimore, MD · Public health',
+      address: '1001 E Fayette St, Baltimore, MD'
+    },
+    {
+      name: 'IWantTheKit (mail-in)',
+      line: 'Maryland home collection — order online',
+      url: IWTK_URL
+    },
+    {
+      name: 'LabCorp Patient Service Center',
+      line: 'Various locations · Lab orders',
+      address: 'LabCorp Baltimore, MD'
+    }
   ];
 
   var seen = {};
@@ -56,7 +89,13 @@
     persona.tests.forEach(function (t) {
       if (t.location && !seen[t.location]) {
         seen[t.location] = true;
-        sites.unshift({ name: t.location, line: 'From your demo test history' });
+        var entry = { name: t.location, line: 'From your demo test history' };
+        if (isIWantTheKit(t.location)) {
+          entry.url = IWTK_URL;
+        } else {
+          entry.address = t.location + ', Baltimore, MD';
+        }
+        sites.unshift(entry);
       }
     });
   }
@@ -66,9 +105,23 @@
   card.className = 'info-card';
   card.innerHTML = '<h3>Places near you</h3><p style="margin-bottom:12px;">These entries mirror locations in your persona&rsquo;s synthetic record where applicable.</p>';
   sites.forEach(function (s) {
-    var row = document.createElement('div');
-    row.className = 'locator-item';
-    row.innerHTML = '<strong>' + s.name + '</strong><div class="locator-meta">' + s.line + '</div>';
+    var href = locatorHref(s);
+    var inner = '<strong>' + s.name + '</strong><div class="locator-meta">' + s.line + '</div>';
+    var row;
+    if (href) {
+      row = document.createElement('a');
+      row.className = 'locator-item locator-item--link';
+      row.href = href;
+      if (s.url) {
+        row.target = '_blank';
+        row.rel = 'noopener noreferrer';
+      }
+      row.innerHTML = inner;
+    } else {
+      row = document.createElement('div');
+      row.className = 'locator-item';
+      row.innerHTML = inner;
+    }
     card.appendChild(row);
   });
   stack.appendChild(card);

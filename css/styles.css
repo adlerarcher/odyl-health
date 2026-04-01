@@ -1093,6 +1093,18 @@ button.header-gear-item:hover {
   padding: 12px 0;
 }
 
+a.locator-item--link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: rgba(255, 107, 90, 0.15);
+}
+
+a.locator-item--link:active {
+  opacity: 0.92;
+}
+
 .locator-item:last-child {
   border-bottom: none;
 }
