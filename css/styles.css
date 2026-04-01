@@ -55,6 +55,8 @@ body {
 
 /* App shell: full bleed on phones; framed on wider viewports */
 .phone-frame {
+  display: flex;
+  flex-direction: column;
   width: 100%;
   max-width: 100%;
   min-height: 100vh;
@@ -833,6 +835,8 @@ body {
   display: flex;
   justify-content: space-around;
   align-items: center;
+  margin-top: auto;
+  flex-shrink: 0;
   padding: 10px 0 24px;
   padding-bottom: max(24px, env(safe-area-inset-bottom));
   background: rgba(255, 255, 255, 0.22);
