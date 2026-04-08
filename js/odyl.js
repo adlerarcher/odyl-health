@@ -157,6 +157,105 @@
     }
   };
 
+  function currentHtmlFile() {
+    var p = window.location.pathname || '';
+    var seg = p.split('/').filter(Boolean);
+    var last = seg.length ? seg[seg.length - 1] : 'index.html';
+    if (!last || last.indexOf('.html') === -1) last = 'index.html';
+    return last;
+  }
+
+  function renderDesktopNav() {
+    var items = [
+      { href: 'index.html', label: 'Home' },
+      { href: 'calendar.html', label: 'Calendar' },
+      { href: 'results.html', label: 'Results' },
+      { href: 'survey.html', label: 'Survey' }
+    ];
+    var page = currentHtmlFile();
+    return (
+      '<nav class="desktop-nav" aria-label="Main navigation">' +
+      items
+        .map(function (item) {
+          var active = item.href === page ? ' desktop-nav-link--active' : '';
+          return '<a href="' + item.href + '" class="desktop-nav-link' + active + '">' + item.label + '</a>';
+        })
+        .join('') +
+      '</nav>'
+    );
+  }
+
+  function renderSidebarMarkup() {
+    var items = [
+      { href: 'index.html', label: 'Home', icon: Icons.home },
+      { href: 'calendar.html', label: 'Calendar', icon: Icons.calendar },
+      { href: 'results.html', label: 'Results', icon: Icons.clipboard },
+      { href: 'survey.html', label: 'Survey', icon: Icons.survey },
+      { href: 'locator.html', label: 'Health Locator', icon: Icons.mapPin },
+      { href: 'education.html', label: 'Education', icon: Icons.book },
+      { href: 'support.html', label: 'Support', icon: Icons.heartHands },
+      { href: 'lumi.html', label: 'LUMI.AI', icon: Icons.chat },
+      { href: 'rewards.html', label: 'Rewards', icon: Icons.medal },
+      { href: 'profile.html', label: 'Profile', icon: Icons.gear }
+    ];
+    var page = currentHtmlFile();
+    return (
+      '<div class="desktop-sidebar-brand">ODYL</div>' +
+      '<p class="desktop-sidebar-tag">Health</p>' +
+      '<nav class="desktop-sidebar-nav" aria-label="Main navigation">' +
+      items
+        .map(function (item) {
+          var act = item.href === page ? ' sidebar-link--active' : '';
+          return (
+            '<a href="' +
+            item.href +
+            '" class="sidebar-link' +
+            act +
+            '"><span class="sidebar-link-icon">' +
+            item.icon() +
+            '</span><span class="sidebar-link-label">' +
+            item.label +
+            '</span></a>'
+          );
+        })
+        .join('') +
+      '</nav>'
+    );
+  }
+
+  var desktopShellMq = null;
+
+  function ensureDesktopShell() {
+    if (typeof document === 'undefined' || !document.body) return;
+    if (!desktopShellMq) {
+      desktopShellMq = window.matchMedia('(min-width: 768px)');
+      if (desktopShellMq.addEventListener) {
+        desktopShellMq.addEventListener('change', ensureDesktopShell);
+      } else if (desktopShellMq.addListener) {
+        desktopShellMq.addListener(ensureDesktopShell);
+      }
+    }
+    var fr = document.querySelector('.phone-frame');
+    var isLock = fr && fr.classList.contains('pin-lock-page');
+    var wants = desktopShellMq.matches && fr && !isLock;
+    var aside = document.getElementById('odyl-desktop-sidebar');
+
+    if (wants) {
+      document.body.classList.add('odyl-desktop');
+      if (!aside) {
+        aside = document.createElement('aside');
+        aside.id = 'odyl-desktop-sidebar';
+        aside.className = 'desktop-sidebar';
+        aside.setAttribute('aria-label', 'Main navigation');
+        fr.parentNode.insertBefore(aside, fr);
+      }
+      aside.innerHTML = renderSidebarMarkup();
+    } else {
+      document.body.classList.remove('odyl-desktop');
+      if (aside) aside.remove();
+    }
+  }
+
   /**
    * Shared app header: lock → lock.html, settings (gear) → profile.html.
    * @param {'home'|'sub'|'login'} variant — reserved for future layout tweaks
@@ -178,17 +277,19 @@
         '</div>' +
         '</div>';
     } else {
-      rightHtml = '<span class="header-icon-btn" style="visibility:hidden" aria-hidden="true"></span>';
+      rightHtml = '<span class="header-icon-btn header-icon-btn--spacer" aria-hidden="true"></span>';
     }
 
     return (
+      '<header class="app-header-bar">' +
       '<div class="app-header">' +
       '<a href="lock.html" class="header-icon-btn" data-odyl-lock aria-label="Lock screen">' +
       Icons.lock() +
       '</a>' +
       '<span class="logo">ODYL</span>' +
+      renderDesktopNav() +
       rightHtml +
-      '</div>'
+      '</div></header>'
     );
   }
 
@@ -270,6 +371,7 @@
     el.innerHTML = renderHeader(variant, options);
     bindGearMenu(el);
     bindLockLink(el);
+    ensureDesktopShell();
   }
 
   function renderBottomNav(active) {
@@ -308,6 +410,15 @@
     var el = typeof container === 'string' ? document.querySelector(container) : container;
     if (!el) return;
     el.innerHTML = renderBottomNav(active);
+    ensureDesktopShell();
+  }
+
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', ensureDesktopShell);
+    } else {
+      ensureDesktopShell();
+    }
   }
 
   global.ODYL = {
@@ -325,6 +436,7 @@
     mountHeader: mountHeader,
     renderBottomNav: renderBottomNav,
     mountBottomNav: mountBottomNav,
-    bindLogoutButtons: bindLogoutButtons
+    bindLogoutButtons: bindLogoutButtons,
+    ensureDesktopShell: ensureDesktopShell
   };
 })(typeof window !== 'undefined' ? window : this);
