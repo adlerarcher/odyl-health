@@ -8,6 +8,265 @@
   var STORAGE_KEY = 'odyl_persona';
   var LOCK_RETURN_KEY = 'odyl_lock_return';
 
+  /** Demo-only STI panel when a persona has no recorded tests (signup / empty profile). */
+  var SAMPLE_TEST_RESULTS = [
+    { type: 'Chlamydia', result: 'Negative', date: '2026-03-18', location: 'Chase Brexton' },
+    { type: 'Gonorrhea', result: 'Negative', date: '2026-03-18', location: 'Chase Brexton' },
+    { type: 'HIV', result: 'Negative', date: '2026-02-04', location: 'IWantTheKit' },
+    { type: 'Syphilis', result: 'Negative', date: '2026-02-04', location: 'IWantTheKit' }
+  ];
+
+  function getPersonaTests(persona) {
+    if (persona && persona.tests && persona.tests.length > 0) return persona.tests;
+    return SAMPLE_TEST_RESULTS;
+  }
+
+  /** Normalize STI name for profile lookup (e.g. "HSV-1" → "hsv-1"). */
+  function normalizeStiKey(name) {
+    return String(name || '')
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, ' ');
+  }
+
+  /**
+   * Short educational blurbs for prototype (not clinical advice).
+   * Keys use normalized names from test panels.
+   */
+  var STI_PROFILES = {
+    chlamydia: {
+      title: 'Chlamydia',
+      about:
+        'Chlamydia is a common bacterial STI. Many people have no symptoms, so testing is the most reliable way to know your status.',
+      symptoms:
+        'When present, symptoms can include burning with urination, discharge, or pelvic discomfort. Infections can also be silent.',
+      transmission:
+        'Spread through vaginal, anal, or oral sex without consistent barrier protection. Regular screening and partner treatment help reduce spread.',
+      testing:
+        'Usually diagnosed with a urine sample or swab. It is treatable with antibiotics prescribed by a clinician—complete the full course even if you feel better.'
+    },
+    gonorrhea: {
+      title: 'Gonorrhea',
+      about:
+        'Gonorrhea is a bacterial STI that can affect the genitals, rectum, and throat. Like chlamydia, it may cause no obvious symptoms.',
+      symptoms:
+        'Possible discharge, painful urination, sore throat (pharyngeal infection), or rectal irritation. Untreated infection can lead to complications.',
+      transmission:
+        'Passed through sexual contact involving infected mucous membranes. Condoms and routine testing reduce risk.',
+      testing:
+        'Detected via swab or urine NAAT testing. Antibiotic treatment is effective; follow-up testing may be recommended based on local resistance patterns.'
+    },
+    hiv: {
+      title: 'HIV',
+      about:
+        'HIV affects the immune system. With modern care, people living with HIV can stay healthy; early diagnosis matters.',
+      symptoms:
+        'Acute infection may feel like flu; long-term untreated HIV weakens immunity. Many people have no symptoms for years.',
+      transmission:
+        'Transmitted through blood, semen, vaginal fluids, rectal fluids, and breast milk during sex or sharing injection equipment. PrEP/PEP and condoms are key prevention tools.',
+      testing:
+        'Blood or oral-fluid antibody/antigen tests, sometimes with RNA confirmation. Rapid tests give quick results; window periods vary by test type.'
+    },
+    syphilis: {
+      title: 'Syphilis',
+      about:
+        'Syphilis is a bacterial infection that progresses in stages if untreated. It is curable with antibiotics when caught early.',
+      symptoms:
+        'A painless sore (chancre), rash, swollen lymph nodes, or later-stage organ involvement. Some stages have minimal symptoms.',
+      transmission:
+        'Spread through direct contact with a syphilis sore during sex. Condoms reduce but do not eliminate risk if sores are outside covered areas.',
+      testing:
+        'Blood tests look for antibodies. Treatment is penicillin or alternatives per clinician guidance; partners may need evaluation too.'
+    },
+    'hepatitis b': {
+      title: 'Hepatitis B',
+      about:
+        'Hepatitis B is a liver infection caused by HBV. It can be acute or chronic; vaccination prevents new infections.',
+      symptoms:
+        'May include fatigue, nausea, abdominal pain, jaundice, or none at all, especially early on.',
+      transmission:
+        'Spread through blood, semen, and other body fluids—including sexual contact and shared needles. Vaccination is highly protective.',
+      testing:
+        'Blood panels check antigens, antibodies, and viral load. Care ranges from monitoring to antiviral therapy depending on chronicity.'
+    },
+    'hepatitis c': {
+      title: 'Hepatitis C',
+      about:
+        'Hepatitis C is a bloodborne liver infection, now curable for most people with short oral medication courses.',
+      symptoms:
+        'Often none for years; chronic infection may cause fatigue or liver-related signs late in disease.',
+      transmission:
+        'Primarily blood exposure (e.g., shared injection equipment). Sexual transmission is less common than for bacterial STIs but possible in some contexts.',
+      testing:
+        'Blood antibody screening followed by RNA confirmation if positive. Direct-acting antivirals cure the infection in most cases.'
+    },
+    'hsv-1': {
+      title: 'HSV-1 (oral herpes)',
+      about:
+        'HSV-1 usually causes oral cold sores but can also infect the genitals through oral sex. It is very common and lifelong.',
+      symptoms:
+        'Tingling or burning followed by blisters/ulcers that heal. Outbreak frequency varies widely between people.',
+      transmission:
+        'Skin-to-skin contact, including kissing and oral sex, especially during outbreaks or prodrome. Barriers reduce but do not fully eliminate risk.',
+      testing:
+        'Swab PCR during symptoms is most accurate; blood antibody tests show past exposure but do not pinpoint site of infection.'
+    },
+    'hsv-2': {
+      title: 'HSV-2 (genital herpes)',
+      about:
+        'HSV-2 typically affects the genital area. It is a chronic viral infection managed with clinician support.',
+      symptoms:
+        'Painful blisters, ulcers, itching, or flu-like symptoms with first outbreak; many people have mild or unrecognized symptoms.',
+      transmission:
+        'Spread through genital skin-to-skin contact. Daily suppressive therapy and condoms can lower transmission risk.',
+      testing:
+        'PCR swab from a lesion is best when active; type-specific blood IgG tests help clarify status when swabs are not available.'
+    },
+    hpv: {
+      title: 'HPV',
+      about:
+        'Human papillomavirus includes many strains; some affect genital warts risk and some are linked to certain cancers over time.',
+      symptoms:
+        'Often asymptomatic. Some strains cause warts; high-risk types usually have no symptoms until screening finds cell changes.',
+      transmission:
+        'Very common through intimate skin-to-skin contact. Vaccination before exposure prevents the highest-risk types for many people.',
+      testing:
+        'Cervical screening (Pap/HPV co-test) per guidelines; anal screening may be advised for some people. Warts are diagnosed by exam.'
+    },
+    trichomoniasis: {
+      title: 'Trichomoniasis',
+      about:
+        '“Trich” is a parasitic STI caused by Trichomonas vaginalis. It is treatable with prescription medication.',
+      symptoms:
+        'Discharge, odor, itching, or burning urination are common but not universal—especially in partners who may not notice symptoms.',
+      transmission:
+        'Passed during sex. All partners should be treated to prevent ping-pong reinfection.',
+      testing:
+        'NAAT on urine or swab is standard. Oral antibiotics resolve the infection; avoid sex until treatment is completed per clinician advice.'
+    }
+  };
+
+  function getStiProfile(stiName) {
+    var key = normalizeStiKey(stiName);
+    if (STI_PROFILES[key]) return STI_PROFILES[key];
+    return {
+      title: stiName || 'STI',
+      about:
+        'This panel shows a lab result category. For personalized meaning and next steps, talk with a clinician or testing counselor.',
+      symptoms: 'Symptoms depend on the specific infection and may be absent.',
+      transmission: 'Transmission routes vary by organism; use barriers and testing strategies your clinician recommends.',
+      testing: 'Follow-up testing or confirmatory tests may be suggested depending on the assay and your history.'
+    };
+  }
+
+  /** Peer-facing handle for sharing (distinct from User_ID in product copy). */
+  function getPeerHandle(persona) {
+    if (!persona) return '';
+    if (persona.ODYL_Handle && String(persona.ODYL_Handle).trim()) return String(persona.ODYL_Handle).trim();
+    if (persona.Alias && String(persona.Alias).trim()) return String(persona.Alias).trim();
+    return persona.First_Name || 'ODYL user';
+  }
+
+  function canLogMenstrualCycle(persona) {
+    if (!persona) return false;
+    if (persona.Menstrual_Logging === true) return true;
+    if (persona.Menstrual_Logging === false) return false;
+    var bio = String(persona.Bio_Sex || '').toLowerCase();
+    if (bio === 'female') return true;
+    var g = String(persona.Gender || '').toLowerCase();
+    return g === 'female';
+  }
+
+  var SHARE_REGISTRY_KEY = 'odyl_share_registry';
+  var INBOX_PREFIX = 'odyl_inbox_';
+  var MAX_INBOX_MS = 30 * 24 * 60 * 60 * 1000;
+
+  function readShareRegistry() {
+    try {
+      var raw = localStorage.getItem(SHARE_REGISTRY_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function writeShareRegistry(obj) {
+    localStorage.setItem(SHARE_REGISTRY_KEY, JSON.stringify(obj));
+  }
+
+  /**
+   * @param {object} persona sender
+   * @param {{ recipientContact: string, tests: object[], displayHandle: string, ttlMs: number }} opts
+   */
+  function createShareBundle(persona, opts) {
+    var token =
+      's' +
+      Date.now().toString(36) +
+      Math.random()
+        .toString(36)
+        .substring(2, 10);
+    var now = Date.now();
+    var reg = readShareRegistry();
+    reg[token] = {
+      senderUserId: persona.User_ID,
+      senderHandle: opts.displayHandle,
+      tests: opts.tests,
+      recipientContact: opts.recipientContact,
+      createdAt: now,
+      expiresAt: now + opts.ttlMs,
+      inboxExpiresAt: now + Math.min(opts.ttlMs, MAX_INBOX_MS)
+    };
+    writeShareRegistry(reg);
+    var path = 'shared-results.html?t=' + encodeURIComponent(token);
+    var url = path;
+    try {
+      if (typeof window !== 'undefined' && window.location) {
+        url = new URL(path, window.location.href).href;
+      }
+    } catch (e2) {}
+    return { token: token, path: path, url: url };
+  }
+
+  function getShareBundle(token) {
+    if (!token) return null;
+    var reg = readShareRegistry();
+    var b = reg[token];
+    if (!b) return null;
+    if (Date.now() > b.expiresAt) {
+      delete reg[token];
+      writeShareRegistry(reg);
+      return null;
+    }
+    return b;
+  }
+
+  function appendInboxForUser(userId, entry) {
+    if (!userId) return;
+    var key = INBOX_PREFIX + userId;
+    var list = [];
+    try {
+      list = JSON.parse(localStorage.getItem(key) || '[]');
+    } catch (e) {
+      list = [];
+    }
+    list.unshift(entry);
+    localStorage.setItem(key, JSON.stringify(list));
+  }
+
+  function getInboxForUser(userId) {
+    var key = INBOX_PREFIX + userId;
+    var list = [];
+    try {
+      list = JSON.parse(localStorage.getItem(key) || '[]');
+    } catch (e) {
+      list = [];
+    }
+    var cutoff = Date.now() - MAX_INBOX_MS;
+    return list.filter(function (item) {
+      return item.receivedAt && item.receivedAt >= cutoff;
+    });
+  }
+
   function getPersona() {
     try {
       var raw = localStorage.getItem(STORAGE_KEY);
@@ -170,7 +429,7 @@
       { href: 'index.html', label: 'Home' },
       { href: 'calendar.html', label: 'Calendar' },
       { href: 'results.html', label: 'Results' },
-      { href: 'survey.html', label: 'Survey' }
+      { href: 'survey.html', label: 'RiskCheck' }
     ];
     var page = currentHtmlFile();
     return (
@@ -190,7 +449,7 @@
       { href: 'index.html', label: 'Home', icon: Icons.home },
       { href: 'calendar.html', label: 'Calendar', icon: Icons.calendar },
       { href: 'results.html', label: 'Results', icon: Icons.clipboard },
-      { href: 'survey.html', label: 'Survey', icon: Icons.survey },
+      { href: 'survey.html', label: 'RiskCheck', icon: Icons.survey },
       { href: 'locator.html', label: 'Health Locator', icon: Icons.mapPin },
       { href: 'education.html', label: 'Education', icon: Icons.book },
       { href: 'support.html', label: 'Support', icon: Icons.heartHands },
@@ -379,7 +638,7 @@
       { href: 'index.html', key: 'home', label: 'Home', icon: Icons.home },
       { href: 'calendar.html', key: 'calendar', label: 'Calendar', icon: Icons.calendar },
       { href: 'results.html', key: 'results', label: 'Results', icon: Icons.clipboard },
-      { href: 'survey.html', key: 'survey', label: 'Survey', icon: Icons.survey }
+      { href: 'survey.html', key: 'survey', label: 'RiskCheck', icon: Icons.survey }
     ];
     var html =
       '<div class="bottom-nav">' +
@@ -428,6 +687,16 @@
     setPersona: setPersona,
     clearPersona: clearPersona,
     requirePersona: requirePersona,
+    getPersonaTests: getPersonaTests,
+    getStiProfile: getStiProfile,
+    normalizeStiKey: normalizeStiKey,
+    getPeerHandle: getPeerHandle,
+    canLogMenstrualCycle: canLogMenstrualCycle,
+    createShareBundle: createShareBundle,
+    getShareBundle: getShareBundle,
+    appendInboxForUser: appendInboxForUser,
+    getInboxForUser: getInboxForUser,
+    MAX_INBOX_MS: MAX_INBOX_MS,
     logout: logout,
     goLock: goLock,
     goProfile: goProfile,

@@ -35,50 +35,69 @@
     <div class="calendar-grid" id="calendar-grid"></div>
   </div>
 
-  <div class="action-buttons">
-    <button type="button" class="action-btn coral" id="btn-log-activity">LOG SEXUAL ACTIVITY</button>
-    <button type="button" class="action-btn purple" id="btn-reminder">SCHEDULE REMINDER</button>
-    <button type="button" class="action-btn green" id="btn-menstrual">LOG MENSTRUAL CYCLE</button>
+  <div class="calendar-day-panel" id="day-panel">
+    <h3 id="panel-date-title">Log activities</h3>
+    <p class="panel-hint" id="panel-hint">Select a date on the calendar. You can log more than one activity for the same day.</p>
+    <button type="button" class="action-btn outline-dark" id="btn-use-today" style="width:100%;margin-bottom:12px;font-size:12px;padding:10px;">Use today’s date</button>
+    <ul class="day-entry-list" id="day-entry-list" style="display:none;"></ul>
+    <div class="action-buttons" id="panel-actions" style="display:none;flex-direction:column;gap:8px;">
+      <button type="button" class="action-btn coral" id="btn-toggle-sexual">LOG SEXUAL ACTIVITY</button>
+      <button type="button" class="action-btn purple" id="btn-reminder">SCHEDULE REMINDER</button>
+      <button type="button" class="action-btn green" id="btn-menstrual" style="display:none;">LOG MENSTRUAL CYCLE</button>
+    </div>
+    <div class="sexual-log-form" id="sexual-form" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid rgba(0,0,0,0.06);">
+      <div class="modal-section">
+        <h4>Date &amp; time window</h4>
+        <p style="font-size:12px;color:var(--text-medium);margin:0 0 8px;">Date is set from your selection. Choose a part of the day to anchor recall.</p>
+        <label class="checkbox-item" style="margin-bottom:8px;">Time window</label>
+        <select id="log-time-window">
+          <option value="morning">Morning</option>
+          <option value="afternoon">Afternoon</option>
+          <option value="evening">Evening</option>
+          <option value="night">Night</option>
+        </select>
+        <label class="checkbox-item" style="margin-top:10px;"><input type="checkbox" id="log-use-exact-time"> Add optional time stamp</label>
+        <input type="time" id="log-exact-time" disabled style="margin-top:6px;width:100%;padding:8px;border-radius:8px;border:none;">
+      </div>
+      <div class="modal-section">
+        <h4>Partner type / identifier</h4>
+        <div class="partner-type-grid">
+          <label><input type="radio" name="partner-type" value="steady" checked> Steady / main</label>
+          <label><input type="radio" name="partner-type" value="casual"> Casual / known</label>
+          <label><input type="radio" name="partner-type" value="new"> New / one-time</label>
+          <label><input type="radio" name="partner-type" value="anonymous"> Anonymous</label>
+        </div>
+        <div class="modal-field" style="flex-direction:column;align-items:stretch;margin-top:10px;">
+          <span>Optional nickname / label</span>
+          <input type="text" id="log-partner-nick" placeholder="e.g. initials you’ll recognize">
+        </div>
+      </div>
+      <div class="modal-section">
+        <h4>Sexual activity types</h4>
+        <div class="checkbox-group">
+          <label class="checkbox-item"><input type="checkbox" id="act-oral-give"> Oral (giving)</label>
+          <label class="checkbox-item"><input type="checkbox" id="act-oral-recv"> Oral (receiving)</label>
+          <label class="checkbox-item"><input type="checkbox" id="act-vag"> Vaginal sex</label>
+          <label class="checkbox-item"><input type="checkbox" id="act-anal-ins"> Anal (insertive)</label>
+          <label class="checkbox-item"><input type="checkbox" id="act-anal-rec"> Anal (receptive)</label>
+          <label class="checkbox-item"><input type="checkbox" id="act-mutual"> Mutual masturbation</label>
+        </div>
+      </div>
+      <div class="modal-section">
+        <h4>Protection use</h4>
+        <div class="checkbox-group">
+          <label class="checkbox-item"><input type="checkbox" id="prot-condom"> Condom</label>
+          <label class="checkbox-item"><input type="checkbox" id="prot-bc"> Birth control</label>
+          <label class="checkbox-item"><input type="checkbox" id="prot-dam"> Dental dam</label>
+          <label class="checkbox-item"><input type="checkbox" id="prot-dia"> Diaphragm</label>
+        </div>
+      </div>
+      <button type="button" class="submit-btn" id="submit-sexual">Save sexual activity log</button>
+      <button type="button" class="action-btn outline-dark" id="cancel-sexual" style="margin-top:10px;width:100%;">Cancel</button>
+    </div>
   </div>
 
   <div id="odyl-nav-mount"></div>
-
-  <div class="modal-overlay" id="activity-modal">
-    <div class="modal-content">
-      <button type="button" class="modal-close" id="modal-close">&#x2716;</button>
-
-      <div class="modal-date" id="modal-date">Wednesday, April 1 - 2026</div>
-
-      <div class="modal-section">
-        <h4>Select Activities:</h4>
-        <div class="checkbox-group">
-          <label class="checkbox-item"><input type="checkbox"> Vaginal Sex</label>
-          <label class="checkbox-item"><input type="checkbox"> Anal Sex</label>
-          <label class="checkbox-item"><input type="checkbox"> Oral Sex</label>
-          <label class="checkbox-item"><input type="checkbox"> Mutual Masturbation</label>
-          <label class="checkbox-item">Other: <input type="text" placeholder=""></label>
-        </div>
-      </div>
-
-      <div class="modal-section">
-        <h4>Protection Use:</h4>
-        <div class="checkbox-group">
-          <label class="checkbox-item"><input type="checkbox"> Condom</label>
-          <label class="checkbox-item"><input type="checkbox"> Birth Control</label>
-          <label class="checkbox-item"><input type="checkbox"> Dental Dam</label>
-          <label class="checkbox-item"><input type="checkbox"> Diaphragm</label>
-          <label class="checkbox-item">Other: <input type="text" placeholder=""></label>
-        </div>
-      </div>
-
-      <div class="modal-field">
-        <span>Partner(s):</span>
-        <input type="text" placeholder="">
-      </div>
-
-      <button type="button" class="submit-btn" id="submit-entry">SUBMIT ENTRY</button>
-    </div>
-  </div>
 
 </div>
 
@@ -96,10 +115,123 @@
   var currentYear = currentDate.getFullYear();
   var selectedDay = null;
 
-  var events = JSON.parse(localStorage.getItem('odyl_events_' + persona.User_ID) || '{}');
+  var storageKey = 'odyl_events_' + persona.User_ID;
+  var events = {};
+  try {
+    events = JSON.parse(localStorage.getItem(storageKey) || '{}');
+  } catch (e) {
+    events = {};
+  }
 
   var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  function getBucket(dateKey) {
+    var raw = events[dateKey];
+    if (raw === true) {
+      return { sexual: [], menstrual: [], reminders: [{ text: 'Earlier log (no detail)' }] };
+    }
+    if (!raw || typeof raw !== 'object') {
+      return { sexual: [], menstrual: [], reminders: [] };
+    }
+    return {
+      sexual: Array.isArray(raw.sexual) ? raw.sexual : [],
+      menstrual: Array.isArray(raw.menstrual) ? raw.menstrual : [],
+      reminders: Array.isArray(raw.reminders) ? raw.reminders : []
+    };
+  }
+
+  function setBucket(dateKey, bucket) {
+    events[dateKey] = bucket;
+    localStorage.setItem(storageKey, JSON.stringify(events));
+  }
+
+  function dayHasActivity(dateKey) {
+    var b = getBucket(dateKey);
+    return b.sexual.length > 0 || b.menstrual.length > 0 || b.reminders.length > 0;
+  }
+
+  function formatSexualLine(entry) {
+    var acts = (entry.activities || []).join(', ');
+    if (!acts) acts = '(types not specified)';
+    var tw = entry.timeWindow || '—';
+    var pt = entry.partnerType || '—';
+    var nick = entry.partnerNick ? ' · ' + entry.partnerNick : '';
+    var clock = entry.exactTime ? ' @ ' + entry.exactTime : '';
+    return tw + clock + ' · ' + pt + nick + ' · ' + acts;
+  }
+
+  function renderDayPanel() {
+    var hint = document.getElementById('panel-hint');
+    var list = document.getElementById('day-entry-list');
+    var actions = document.getElementById('panel-actions');
+    var title = document.getElementById('panel-date-title');
+    var menstrualBtn = document.getElementById('btn-menstrual');
+    var sexualForm = document.getElementById('sexual-form');
+
+    sexualForm.style.display = 'none';
+
+    if (ODYL.canLogMenstrualCycle(persona)) {
+      menstrualBtn.style.display = 'block';
+    } else {
+      menstrualBtn.style.display = 'none';
+    }
+
+    if (!selectedDay) {
+      title.textContent = 'Log activities';
+      hint.style.display = 'block';
+      list.style.display = 'none';
+      actions.style.display = 'none';
+      return;
+    }
+
+    hint.style.display = 'none';
+    actions.style.display = 'flex';
+
+    var parts = selectedDay.split('-');
+    var y = parseInt(parts[0], 10);
+    var m = parseInt(parts[1], 10) - 1;
+    var dayNum = parseInt(parts[2], 10);
+    var dateObj = new Date(y, m, dayNum);
+    title.textContent = dateObj.toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
+    });
+
+    var b = getBucket(selectedDay);
+    list.innerHTML = '';
+    if (!b.sexual.length && !b.menstrual.length && !b.reminders.length) {
+      list.style.display = 'block';
+      var li0 = document.createElement('li');
+      li0.textContent = 'No entries yet for this day.';
+      list.appendChild(li0);
+    } else {
+      list.style.display = 'block';
+      b.sexual.forEach(function (e) {
+        var li = document.createElement('li');
+        li.textContent = 'Sexual activity: ' + formatSexualLine(e);
+        list.appendChild(li);
+      });
+      b.menstrual.forEach(function (e) {
+        var li = document.createElement('li');
+        li.textContent = 'Menstrual: ' + (e.note || 'Logged');
+        list.appendChild(li);
+      });
+      b.reminders.forEach(function (e) {
+        var li = document.createElement('li');
+        li.textContent = 'Reminder: ' + (e.text || 'Scheduled');
+        list.appendChild(li);
+      });
+    }
+  }
+
+  function selectDateKey(dateKey) {
+    selectedDay = dateKey;
+    renderDayPanel();
+    renderCalendar();
+  }
 
   function renderCalendar() {
     var grid = document.getElementById('calendar-grid');
@@ -143,19 +275,16 @@
           el.classList.add('today');
         }
 
-        if (events[dateKey]) {
+        if (dayHasActivity(dateKey)) {
           el.classList.add('has-event');
+        }
+        if (selectedDay === dateKey) {
+          el.style.boxShadow = 'inset 0 0 0 2px var(--coral)';
         }
 
         el.textContent = dayNum;
         el.addEventListener('click', function () {
-          selectedDay = dateKey;
-          var dateObj = new Date(currentYear, currentMonth, dayNum);
-          var dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
-          var monthName = dateObj.toLocaleDateString('en-US', { month: 'long' });
-          document.getElementById('modal-date').textContent =
-            dayName + ', ' + monthName + ' ' + dayNum + ' - ' + currentYear;
-          document.getElementById('activity-modal').classList.add('active');
+          selectDateKey(dateKey);
         });
 
         grid.appendChild(el);
@@ -190,41 +319,127 @@
     renderCalendar();
   });
 
-  document.getElementById('btn-log-activity').addEventListener('click', function () {
-    var today = new Date();
-    selectedDay =
-      today.getFullYear() +
+  document.getElementById('btn-use-today').addEventListener('click', function () {
+    var t = new Date();
+    var key =
+      t.getFullYear() +
       '-' +
-      String(today.getMonth() + 1).padStart(2, '0') +
+      String(t.getMonth() + 1).padStart(2, '0') +
       '-' +
-      String(today.getDate()).padStart(2, '0');
-    var dayName = today.toLocaleDateString('en-US', { weekday: 'long' });
-    var monthName = today.toLocaleDateString('en-US', { month: 'long' });
-    document.getElementById('modal-date').textContent =
-      dayName + ', ' + monthName + ' ' + today.getDate() + ' - ' + today.getFullYear();
-    document.getElementById('activity-modal').classList.add('active');
+      String(t.getDate()).padStart(2, '0');
+    currentMonth = t.getMonth();
+    currentYear = t.getFullYear();
+    selectDateKey(key);
+  });
+
+  document.getElementById('btn-toggle-sexual').addEventListener('click', function () {
+    if (!selectedDay) {
+      alert('Pick a date on the calendar (or “Use today’s date”) first.');
+      return;
+    }
+    var f = document.getElementById('sexual-form');
+    f.style.display = f.style.display === 'none' ? 'block' : 'none';
+  });
+
+  document.getElementById('cancel-sexual').addEventListener('click', function () {
+    document.getElementById('sexual-form').style.display = 'none';
+  });
+
+  document.getElementById('log-use-exact-time').addEventListener('change', function () {
+    document.getElementById('log-exact-time').disabled = !this.checked;
+  });
+
+  document.getElementById('submit-sexual').addEventListener('click', function () {
+    if (!selectedDay) return;
+    var activities = [];
+    if (document.getElementById('act-oral-give').checked) activities.push('oral (giving)');
+    if (document.getElementById('act-oral-recv').checked) activities.push('oral (receiving)');
+    if (document.getElementById('act-vag').checked) activities.push('vaginal');
+    if (document.getElementById('act-anal-ins').checked) activities.push('anal insertive');
+    if (document.getElementById('act-anal-rec').checked) activities.push('anal receptive');
+    if (document.getElementById('act-mutual').checked) activities.push('mutual masturbation');
+    if (!activities.length) {
+      alert('Select at least one activity type, or cancel.');
+      return;
+    }
+    var partnerType = (document.querySelector('input[name="partner-type"]:checked') || {}).value || '';
+    var entry = {
+      timeWindow: document.getElementById('log-time-window').value,
+      exactTime:
+        document.getElementById('log-use-exact-time').checked && document.getElementById('log-exact-time').value
+          ? document.getElementById('log-exact-time').value
+          : '',
+      partnerType: partnerType,
+      partnerNick: document.getElementById('log-partner-nick').value.trim(),
+      activities: activities,
+      protection: {
+        condom: document.getElementById('prot-condom').checked,
+        bc: document.getElementById('prot-bc').checked,
+        dam: document.getElementById('prot-dam').checked,
+        dia: document.getElementById('prot-dia').checked
+      },
+      savedAt: Date.now()
+    };
+
+    var b = getBucket(selectedDay);
+    b.sexual.push(entry);
+    setBucket(selectedDay, b);
+
+    document.getElementById('sexual-form').style.display = 'none';
+    [
+      'act-oral-give',
+      'act-oral-recv',
+      'act-vag',
+      'act-anal-ins',
+      'act-anal-rec',
+      'act-mutual',
+      'prot-condom',
+      'prot-bc',
+      'prot-dam',
+      'prot-dia',
+      'log-use-exact-time'
+    ].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el && el.type === 'checkbox') el.checked = false;
+    });
+    document.getElementById('log-exact-time').value = '';
+    document.getElementById('log-exact-time').disabled = true;
+    document.getElementById('log-partner-nick').value = '';
+    document.querySelector('input[name="partner-type"][value="steady"]').checked = true;
+
+    renderDayPanel();
+    renderCalendar();
   });
 
   document.getElementById('btn-reminder').addEventListener('click', function () {
-    alert('Reminder scheduling is a placeholder in Phase 1.');
-  });
-  document.getElementById('btn-menstrual').addEventListener('click', function () {
-    alert('Menstrual logging is a placeholder in Phase 1.');
-  });
-
-  document.getElementById('modal-close').addEventListener('click', function () {
-    document.getElementById('activity-modal').classList.remove('active');
-  });
-
-  document.getElementById('submit-entry').addEventListener('click', function () {
-    if (selectedDay) {
-      events[selectedDay] = true;
-      localStorage.setItem('odyl_events_' + persona.User_ID, JSON.stringify(events));
-      document.getElementById('activity-modal').classList.remove('active');
-      renderCalendar();
+    if (!selectedDay) {
+      alert('Pick a date first.');
+      return;
     }
+    var note = window.prompt('Reminder note (saved on this device only):', 'STI screening');
+    if (!note) return;
+    var b = getBucket(selectedDay);
+    b.reminders.push({ text: note, savedAt: Date.now() });
+    setBucket(selectedDay, b);
+    renderDayPanel();
+    renderCalendar();
   });
 
+  document.getElementById('btn-menstrual').addEventListener('click', function () {
+    if (!selectedDay) {
+      alert('Pick a date first.');
+      return;
+    }
+    var note = window.prompt('Menstrual log (e.g. cycle day, flow):', 'Day 1');
+    if (!note) return;
+    var b = getBucket(selectedDay);
+    b.menstrual.push({ note: note, savedAt: Date.now() });
+    setBucket(selectedDay, b);
+    renderDayPanel();
+    renderCalendar();
+  });
+
+  renderDayPanel();
   renderCalendar();
 })();
 </script>

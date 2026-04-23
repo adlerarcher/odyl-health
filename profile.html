@@ -32,10 +32,14 @@
         <div class="profile-avatar-lg" id="profile-avatar">AA</div>
         <div>
           <h3 id="profile-name" style="margin-bottom:4px;">Persona</h3>
-          <p style="font-size:12px;color:var(--text-medium);" id="profile-id">ID</p>
+          <p style="font-size:12px;color:var(--text-medium);" id="profile-id"></p>
         </div>
       </div>
       <dl class="profile-dl">
+        <dt>ODYL User ID</dt>
+        <dd id="v-userid">—</dd>
+        <dt>ODYL Health Handle</dt>
+        <dd id="v-handle">—</dd>
         <dt>Date of birth</dt>
         <dd id="v-dob">—</dd>
         <dt>Gender</dt>
@@ -52,6 +56,8 @@
       <p>ODYL Health Phase 1 runs entirely in your browser. Personas are synthetic — no real PHI, no backend, no authentication.</p>
     </div>
 
+    <a href="inbox.html" class="action-btn purple" style="display:block;text-align:center;text-decoration:none;">Results Inbox</a>
+
     <button type="button" class="action-btn coral" id="btn-switch">Switch profile</button>
     <button type="button" class="action-btn outline-dark" id="btn-logout">Log out</button>
   </div>
@@ -67,13 +73,17 @@
   ODYL.mountBottomNav('#odyl-nav-mount', 'none');
 
   var bgColors = ['#f97085', '#e88a3a', '#7ec89b', '#b491d1', '#5dade2', '#f4a460'];
-  var initials = persona.First_Name[0] + persona.Last_Name[0];
+  var initials =
+    persona.First_Name[0] +
+    (persona.Last_Name && persona.Last_Name[0] ? persona.Last_Name[0] : (persona.First_Name[1] || ''));
   var av = document.getElementById('profile-avatar');
   av.textContent = initials;
   av.style.background = bgColors[(persona.bg || 1) - 1] || bgColors[0];
 
-  document.getElementById('profile-name').textContent = persona.First_Name + ' ' + persona.Last_Name;
-  document.getElementById('profile-id').textContent = 'User ' + persona.User_ID;
+  document.getElementById('profile-name').textContent = persona.First_Name + ' ' + (persona.Last_Name || '').trim();
+  document.getElementById('profile-id').textContent = 'Peer-facing handle: ' + ODYL.getPeerHandle(persona);
+  document.getElementById('v-userid').textContent = persona.User_ID;
+  document.getElementById('v-handle').textContent = ODYL.getPeerHandle(persona);
   document.getElementById('v-dob').textContent = persona.DOB;
   document.getElementById('v-gender').textContent = persona.Gender;
   document.getElementById('v-race').textContent = persona.Race_Ethnicity;

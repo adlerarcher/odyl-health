@@ -85,8 +85,9 @@
   ];
 
   var seen = {};
-  if (persona.tests && persona.tests.length) {
-    persona.tests.forEach(function (t) {
+  var testHistory = ODYL.getPersonaTests(persona);
+  if (testHistory.length) {
+    testHistory.forEach(function (t) {
       if (t.location && !seen[t.location]) {
         seen[t.location] = true;
         var entry = { name: t.location, line: 'From your demo test history' };

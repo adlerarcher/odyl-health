@@ -194,10 +194,13 @@
     </div>
 
     <div class="alias-section">
-      <h4>Choose an Alias</h4>
-      <p>This is the name other ODYL users will see if you share results. You can change it anytime.</p>
+      <h4>ODYL Health Handle (peer-facing)</h4>
+      <p>
+        Your <strong>User ID</strong> is shown on welcome screens for your account. Your <strong>Handle</strong> is shown only to people you choose when sharing lab results. For privacy, your Handle must be different from your User ID.
+      </p>
       <div class="form-group" style="margin-bottom:0;">
-        <input type="text" id="alias" placeholder="Pick a username">
+        <label style="margin-bottom:6px;">Handle</label>
+        <input type="text" id="odyl-handle" placeholder="e.g. CareBear" autocomplete="username">
       </div>
     </div>
 
@@ -227,7 +230,7 @@
     const bioSex = document.getElementById('bio-sex').value;
     const genderDiff = document.getElementById('gender-diff').value;
     const genderIdentity = document.getElementById('gender-identity').value.trim();
-    const alias = document.getElementById('alias').value.trim();
+    const odylHandle = document.getElementById('odyl-handle').value.trim();
 
     if (!firstName) {
       alert('Please enter your first name.');
@@ -239,21 +242,38 @@
       return;
     }
 
+    if (!bioSex) {
+      alert('Please select biological sex (used for cycle logging options).');
+      return;
+    }
+
     // Build gender string
     let gender = bioSex || 'Not specified';
     if (genderDiff === 'Yes' && genderIdentity) {
       gender = genderIdentity;
     }
 
+    const userId = 'CU' + Math.random().toString(36).substring(2, 8).toUpperCase();
+    if (!odylHandle) {
+      alert('Please choose an ODYL Health Handle for sharing.');
+      return;
+    }
+    if (odylHandle.toLowerCase() === userId.toLowerCase()) {
+      alert('Your Handle must be different from your User ID. Pick another Handle.');
+      return;
+    }
+
     const persona = {
       Patient_ID: 'custom_' + Date.now(),
-      User_ID: 'CU' + Math.random().toString(36).substring(2, 8).toUpperCase(),
+      User_ID: userId,
       First_Name: firstName,
       Last_Name: '',
+      Bio_Sex: bioSex,
       Gender: gender,
       Race_Ethnicity: '',
       DOB: dob,
-      Alias: alias || firstName,
+      ODYL_Handle: odylHandle,
+      Alias: odylHandle,
       tests: [],
       survey: {},
       rewards: 0

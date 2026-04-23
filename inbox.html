@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ODYL Health — Results Inbox</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="phone-frame">
+
+  <div class="status-bar">
+    <span>9:41</span>
+    <div class="status-bar-icons">
+      <span>&#9679;&#9679;&#9679;&#9679;</span>
+      <span>&#x1F50B;</span>
+    </div>
+  </div>
+
+  <div id="odyl-header-mount"></div>
+
+  <div class="page-title">
+    <h2>Results Inbox</h2>
+  </div>
+
+  <p class="privacy-note">Labs others shared with you. Entries older than 30 days drop off this list in the prototype.</p>
+
+  <div class="results-container" id="inbox-list" style="margin-top:8px;"></div>
+
+  <div id="odyl-nav-mount"></div>
+</div>
+
+<script src="js/odyl.js"></script>
+<script>
+(function () {
+  var persona = ODYL.requirePersona();
+  if (!persona) return;
+
+  ODYL.mountHeader('#odyl-header-mount', 'sub');
+  ODYL.mountBottomNav('#odyl-nav-mount', 'results');
+
+  var items = ODYL.getInboxForUser(persona.User_ID);
+  var wrap = document.getElementById('inbox-list');
+
+  if (!items.length) {
+    wrap.innerHTML =
+      '<div class="info-card" style="text-align:center;"><p style="font-size:14px;color:var(--text-medium);margin:0;">No shared results yet. When someone sends you a link and you agree to the viewing terms, summaries appear here.</p></div>';
+    return;
+  }
+
+  wrap.innerHTML = '';
+  items.forEach(function (entry) {
+    var card = document.createElement('div');
+    card.className = 'inbox-card';
+    var when = new Date(entry.receivedAt);
+    var sub = document.createElement('div');
+    sub.style.fontSize = '11px';
+    sub.style.color = 'var(--text-light)';
+    sub.style.marginBottom = '6px';
+    sub.textContent = when.toLocaleString();
+
+    var from = document.createElement('div');
+    from.className = 'from';
+    from.textContent = 'From: ' + (entry.fromHandle || 'ODYL user');
+
+    card.appendChild(sub);
+    card.appendChild(from);
+
+    (entry.tests || []).forEach(function (t) {
+      var row = document.createElement('div');
+      row.className = 'inbox-result-row';
+      var badge = document.createElement('span');
+      var cls = t.result === 'Positive' ? 'positive' : t.result === 'Indeterminate' ? 'indeterminate' : 'negative';
+      badge.className = 'result-badge ' + cls;
+      badge.textContent = t.result;
+      var name = document.createElement('span');
+      name.textContent = t.type;
+      row.appendChild(name);
+      row.appendChild(badge);
+      card.appendChild(row);
+    });
+
+    wrap.appendChild(card);
+  });
+})();
+</script>
+
+</body>
+</html>

@@ -67,7 +67,7 @@
   personas.forEach(function (p) {
     var initials = p.First_Name[0] + p.Last_Name[0];
     var age = Math.floor((new Date() - new Date(p.DOB)) / (365.25 * 24 * 60 * 60 * 1000));
-    var testCount = p.tests.length;
+    var testCount = ODYL.getPersonaTests(p).length;
     var meta =
       age +
       'y/o ' +

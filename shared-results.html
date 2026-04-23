@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ODYL Health — Shared results</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="phone-frame">
+
+  <div class="status-bar">
+    <span>9:41</span>
+    <div class="status-bar-icons">
+      <span>&#9679;&#9679;&#9679;&#9679;</span>
+      <span>&#x1F50B;</span>
+    </div>
+  </div>
+
+  <div id="odyl-header-mount"></div>
+
+  <div class="page-title">
+    <h2>Shared lab results</h2>
+  </div>
+
+  <div class="content-stack" style="margin:0 20px 24px;">
+
+    <div id="step-invalid" class="info-card" hidden>
+      <p>This link is invalid or has expired. Ask the sender for a new share link.</p>
+      <a href="login.html" class="action-btn coral" style="display:inline-block;text-align:center;text-decoration:none;margin-top:12px;">Go to sign in</a>
+    </div>
+
+    <div id="step-intro" hidden>
+      <p class="privacy-note" style="text-align:left;margin:0 0 12px;" id="sms-sim"></p>
+      <div class="info-card">
+        <p style="font-size:14px;line-height:1.5;color:var(--text-dark);margin:0 0 16px;">
+          Someone wants to share selected lab results with you. Choose how you would like to continue in this prototype.
+        </p>
+        <button type="button" class="action-btn purple" id="btn-guest" style="width:100%;margin-bottom:10px;">Continue as guest</button>
+        <button type="button" class="action-btn coral" id="btn-registered" style="width:100%;">I use ODYL — I’m signed in</button>
+        <p style="font-size:12px;color:var(--text-medium);margin-top:14px;">
+          Not registered? <a href="signup.html" style="color:var(--text-dark);font-weight:700;">Quick ODYL Health registration</a> or use guest view above.
+        </p>
+      </div>
+    </div>
+
+    <div id="step-signin-hint" class="info-card" hidden>
+      <p>You’re not signed in on this device. <a href="login.html">Choose a profile</a> to save these results in your Inbox, or go back and continue as guest.</p>
+      <button type="button" class="action-btn outline-dark" id="btn-back-intro" style="margin-top:12px;">Back</button>
+    </div>
+
+    <div id="step-agree" hidden>
+      <div class="info-card">
+        <p style="font-size:14px;line-height:1.55;color:var(--text-dark);margin:0 0 16px;">
+          According to our user agreement, capturing screenshots of someone else’s results or sharing them further is strictly prohibited. By opening these results you agree <strong>not</strong> to capture or redistribute this private health information.
+        </p>
+        <button type="button" class="action-btn coral" id="btn-agree" style="width:100%;margin-bottom:10px;">Agree</button>
+        <button type="button" class="action-btn outline-dark" id="btn-decline" style="width:100%;">Do not agree</button>
+      </div>
+    </div>
+
+    <div id="step-view-registered" hidden>
+      <p class="privacy-note" style="text-align:left;">Saved to your Inbox (sender’s ODYL Handle only; no identifying details).</p>
+      <div id="registered-results"></div>
+      <a href="inbox.html" class="action-btn purple" style="display:block;text-align:center;text-decoration:none;margin-top:16px;">Open Inbox</a>
+    </div>
+
+    <div id="step-view-guest" hidden>
+      <p class="privacy-note" style="text-align:left;">Guest view: results are shown as a single read-only card (prototype “image” view).</p>
+      <div id="guest-results" class="guest-result-capture"></div>
+    </div>
+
+    <div id="step-declined" class="info-card" hidden>
+      <p>You chose not to accept the viewing terms. The results will not be shown.</p>
+      <a href="index.html" class="action-btn outline-dark" style="display:inline-block;text-align:center;text-decoration:none;margin-top:12px;">Home</a>
+    </div>
+  </div>
+
+  <div id="odyl-nav-mount"></div>
+</div>
+
+<script src="js/odyl.js"></script>
+<script>
+(function () {
+  ODYL.mountHeader('#odyl-header-mount', 'sub');
+  ODYL.mountBottomNav('#odyl-nav-mount', 'none');
+
+  var params = new URLSearchParams(window.location.search);
+  var token = params.get('t');
+  var bundle = token ? ODYL.getShareBundle(token) : null;
+
+  var recipientMode = null;
+
+  function show(id) {
+    ['step-invalid', 'step-intro', 'step-signin-hint', 'step-agree', 'step-view-registered', 'step-view-guest', 'step-declined'].forEach(function (k) {
+      var el = document.getElementById(k);
+      if (el) el.hidden = k !== id;
+    });
+  }
+
+  function renderTestsHtml(tests, handleLabel) {
+    var html = '<div class="inbox-card"><div class="from">From: ' + handleLabel + '</div>';
+    tests.forEach(function (t) {
+      var badge = t.result === 'Positive' ? 'positive' : t.result === 'Indeterminate' ? 'indeterminate' : 'negative';
+      html +=
+        '<div class="inbox-result-row"><span>' +
+        t.type +
+        '</span><span class="result-badge ' +
+        badge +
+        '">' +
+        t.result +
+        '</span></div>';
+    });
+    html += '</div>';
+    return html;
+  }
+
+  function stripLocations(tests) {
+    return tests.map(function (t) {
+      return { type: t.type, result: t.result };
+    });
+  }
+
+  if (!bundle) {
+    show('step-invalid');
+    return;
+  }
+
+  var sms =
+    '[' +
+    bundle.senderHandle +
+    '] wants to share ODYL Health lab information with you. Tap your secure link (sent by SMS in a full build).';
+  document.getElementById('sms-sim').textContent = sms;
+  show('step-intro');
+
+  document.getElementById('btn-guest').addEventListener('click', function () {
+    recipientMode = 'guest';
+    show('step-agree');
+  });
+
+  document.getElementById('btn-registered').addEventListener('click', function () {
+    var p = ODYL.getPersona();
+    if (!p) {
+      try {
+        sessionStorage.setItem('odyl_share_return', window.location.href);
+      } catch (e) {}
+      show('step-signin-hint');
+      return;
+    }
+    recipientMode = 'registered';
+    show('step-agree');
+  });
+
+  document.getElementById('btn-back-intro').addEventListener('click', function () {
+    show('step-intro');
+  });
+
+  document.getElementById('btn-decline').addEventListener('click', function () {
+    show('step-declined');
+  });
+
+  document.getElementById('btn-agree').addEventListener('click', function () {
+    var safeTests = stripLocations(bundle.tests);
+    var label = bundle.senderHandle;
+
+    if (recipientMode === 'guest') {
+      document.getElementById('guest-results').innerHTML =
+        '<div class="capture-label">Shared lab summary (guest)</div>' + renderTestsHtml(safeTests, label);
+      show('step-view-guest');
+      return;
+    }
+
+    if (recipientMode === 'registered') {
+      var persona = ODYL.getPersona();
+      if (!persona) {
+        show('step-signin-hint');
+        return;
+      }
+      ODYL.appendInboxForUser(persona.User_ID, {
+        receivedAt: Date.now(),
+        fromHandle: label,
+        tests: safeTests,
+        shareViewUntil: bundle.expiresAt
+      });
+      document.getElementById('registered-results').innerHTML = renderTestsHtml(safeTests, label);
+      show('step-view-registered');
+      return;
+    }
+
+    show('step-intro');
+  });
+})();
+</script>
+
+</body>
+</html>

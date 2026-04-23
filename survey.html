@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ODYL Health - Survey</title>
+  <title>ODYL Health - RiskCheck Quiz</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
@@ -23,10 +23,10 @@
   <div id="odyl-header-mount"></div>
 
   <div class="page-title">
-    <h2>Prepare Before You Get There</h2>
+    <h2>RiskCheck Quiz</h2>
   </div>
 
-  <p class="privacy-note" style="margin-bottom:8px;">Adapted from the CDC risk survey. Your answers stay on this device.</p>
+  <p class="privacy-note" style="margin-bottom:8px;">Your answers stay on this device.</p>
 
   <div class="survey-container" id="survey-container">
 
@@ -168,7 +168,9 @@
       <div class="survey-feedback" data-show="3">If you're not sure, this could be a good time to have that conversation. It's possible they have an infection but don't know it.</div>
     </div>
 
-    <button type="button" class="action-btn coral" style="margin:0 0 24px;" id="survey-complete-btn" onclick="odylSurveyComplete()">COMPLETE SURVEY</button>
+    <button type="button" class="action-btn coral" style="margin:0 0 24px;" id="survey-complete-btn" onclick="odylSurveyComplete()">COMPLETE RISKCHECK</button>
+
+    <p class="fine-print" style="margin:0 0 28px;">This quiz was adapted from materials developed by the CDC for public sexual health education. It is a self-guided tool only and does not replace clinical care.</p>
 
   </div>
 
@@ -212,12 +214,12 @@ function odylSurveyComplete() {
   if (persona && typeof ODYL !== 'undefined' && ODYL.setPersona) {
     persona.survey = survey;
     ODYL.setPersona(persona);
-    alert('Survey responses saved on this device. Thank you, ' + persona.First_Name + '!');
+    alert('RiskCheck responses saved on this device. Thank you, ' + persona.First_Name + '!');
   } else {
     try {
       localStorage.setItem('odyl_survey_standalone', JSON.stringify(survey));
     } catch (e) {}
-    alert('Survey responses saved on this device. Thank you!');
+    alert('RiskCheck responses saved on this device. Thank you!');
   }
 }
 
