@@ -167,6 +167,40 @@
     return persona.First_Name || 'ODYL user';
   }
 
+  /**
+   * Given whatever the sender typed into "Send to" (phone or ODYL User ID),
+   * return a friendly display label — preferring the recipient's ODYL Handle
+   * when the User ID matches a known persona. Falls back to a phone-formatted
+   * string, then to the raw input.
+   */
+  function resolveRecipientLabel(input) {
+    var raw = String(input || '').trim();
+    if (!raw) return '';
+    var personas = (typeof window !== 'undefined' && window.ODYL_PERSONAS) || [];
+    var match = null;
+    for (var i = 0; i < personas.length; i++) {
+      var p = personas[i];
+      if (p && p.User_ID && String(p.User_ID).toLowerCase() === raw.toLowerCase()) {
+        match = p;
+        break;
+      }
+    }
+    if (match) {
+      return {
+        handle: getPeerHandle(match),
+        isKnown: true,
+        raw: raw
+      };
+    }
+    var looksLikePhone = /^[+0-9()\-\s.]{7,}$/.test(raw);
+    return {
+      handle: looksLikePhone ? raw : raw,
+      isKnown: false,
+      raw: raw,
+      looksLikePhone: looksLikePhone
+    };
+  }
+
   function canLogMenstrualCycle(persona) {
     if (!persona) return false;
     if (persona.Menstrual_Logging === true) return true;
@@ -691,6 +725,7 @@
     getStiProfile: getStiProfile,
     normalizeStiKey: normalizeStiKey,
     getPeerHandle: getPeerHandle,
+    resolveRecipientLabel: resolveRecipientLabel,
     canLogMenstrualCycle: canLogMenstrualCycle,
     createShareBundle: createShareBundle,
     getShareBundle: getShareBundle,

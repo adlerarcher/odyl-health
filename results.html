@@ -69,6 +69,7 @@
         <div class="share-field">
           <label for="share-recipient">Send to (phone or ODYL User ID)</label>
           <input type="text" id="share-recipient" placeholder="+1… or OP27346Q" autocomplete="off">
+          <p class="share-recipient-preview" id="share-recipient-preview" hidden></p>
         </div>
         <div class="share-field">
           <span class="field-label">Select tests to include</span>
@@ -91,10 +92,11 @@
           </div>
           <input type="text" id="share-custom-handle" placeholder="e.g. CareBear" disabled style="margin-top:8px;">
         </div>
-        <button type="button" class="submit-btn" id="share-submit">Create share link</button>
+        <button type="button" class="submit-btn" id="share-submit">Confirm Send</button>
       </div>
       <div id="share-done-wrap" style="display:none;">
-        <p style="font-size:13px;color:var(--text-dark);">Share link (expires per your selection):</p>
+        <p class="share-sent-line" id="share-sent-line"></p>
+        <p style="font-size:13px;color:var(--text-dark);margin-top:12px;">Share link (expires per your selection):</p>
         <div class="share-success-box" id="share-url-out"></div>
         <p style="font-size:12px;margin-top:12px;color:var(--text-medium);">Example SMS:</p>
         <div class="share-success-box" id="share-sms-out"></div>
@@ -106,6 +108,7 @@
 </div>
 
 <script src="js/odyl.js"></script>
+<script src="js/personas.js"></script>
 <script>
 (function () {
   var persona = ODYL.requirePersona();
@@ -271,6 +274,26 @@
     });
   }
 
+  function updateRecipientPreview() {
+    var input = document.getElementById('share-recipient').value;
+    var preview = document.getElementById('share-recipient-preview');
+    var info = ODYL.resolveRecipientLabel(input);
+    if (!info) {
+      preview.hidden = true;
+      preview.textContent = '';
+      preview.classList.remove('share-recipient-preview--known');
+      return;
+    }
+    preview.hidden = false;
+    if (info.isKnown) {
+      preview.classList.add('share-recipient-preview--known');
+      preview.innerHTML = "Sending your results to '<strong>" + info.handle + "</strong>'";
+    } else {
+      preview.classList.remove('share-recipient-preview--known');
+      preview.innerHTML = 'Sending your results to <strong>' + info.handle + '</strong>';
+    }
+  }
+
   function openShareModal() {
     shareFormWrap.style.display = 'block';
     shareDoneWrap.style.display = 'none';
@@ -281,9 +304,12 @@
     var def = ODYL.getPeerHandle(persona);
     document.getElementById('share-default-handle-label').textContent =
       'My ODYL Health Handle (' + def + ')';
+    updateRecipientPreview();
     populateShareTests();
     shareModal.classList.add('active');
   }
+
+  document.getElementById('share-recipient').addEventListener('input', updateRecipientPreview);
 
   function closeShareModal() {
     shareModal.classList.remove('active');
@@ -345,6 +371,15 @@
       displayHandle +
       ' wants to share ODYL Health lab results with you. Open: ' +
       bundle.url;
+    var recipientInfo = ODYL.resolveRecipientLabel(to);
+    var sentLine = document.getElementById('share-sent-line');
+    if (recipientInfo && recipientInfo.isKnown) {
+      sentLine.innerHTML = "Sending your results to '<strong>" + recipientInfo.handle + "</strong>'";
+    } else if (recipientInfo) {
+      sentLine.innerHTML = 'Sending your results to <strong>' + recipientInfo.handle + '</strong>';
+    } else {
+      sentLine.textContent = '';
+    }
     document.getElementById('share-url-out').textContent = bundle.url;
     document.getElementById('share-sms-out').textContent = sms;
     shareFormWrap.style.display = 'none';

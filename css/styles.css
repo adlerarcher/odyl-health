@@ -2041,6 +2041,34 @@ a.locator-item--link:active {
   margin-bottom: 14px;
 }
 
+.share-recipient-preview {
+  margin: 8px 0 0;
+  padding: 8px 12px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--text-medium);
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 8px;
+  border-left: 3px solid rgba(45, 45, 45, 0.18);
+}
+
+.share-recipient-preview--known {
+  color: var(--text-dark);
+  background: rgba(255, 224, 178, 0.45);
+  border-left-color: var(--coral, #e0783a);
+}
+
+.share-sent-line {
+  margin: 0 0 4px;
+  padding: 10px 12px;
+  font-family: var(--font-display);
+  font-size: 14px;
+  color: var(--text-dark);
+  background: rgba(255, 224, 178, 0.6);
+  border-radius: 10px;
+  border-left: 3px solid var(--coral, #e0783a);
+}
+
 .share-field label,
 .share-field span.field-label {
   display: block;
