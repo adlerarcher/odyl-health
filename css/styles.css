@@ -2069,6 +2069,34 @@ a.locator-item--link:active {
   border-left: 3px solid var(--coral, #e0783a);
 }
 
+.share-review-tests-list {
+  margin: 0 0 12px;
+  padding-left: 18px;
+  font-size: 13px;
+  color: var(--text-dark);
+  line-height: 1.45;
+}
+
+.share-modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.share-modal-actions .submit-btn {
+  margin: 0;
+  width: 100%;
+}
+
+.submit-btn.submit-btn--secondary {
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--text-dark);
+  border: 2px solid rgba(26, 26, 26, 0.18);
+  text-transform: none;
+  letter-spacing: 0.04em;
+}
+
 .share-field label,
 .share-field span.field-label {
   display: block;

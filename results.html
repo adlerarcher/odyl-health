@@ -92,15 +92,22 @@
           </div>
           <input type="text" id="share-custom-handle" placeholder="e.g. CareBear" disabled style="margin-top:8px;">
         </div>
-        <button type="button" class="submit-btn" id="share-submit">Confirm Send</button>
+        <button type="button" class="submit-btn" id="share-continue">Continue</button>
       </div>
       <div id="share-done-wrap" style="display:none;">
         <p class="share-sent-line" id="share-sent-line"></p>
-        <p style="font-size:13px;color:var(--text-dark);margin-top:12px;">Share link (expires per your selection):</p>
-        <div class="share-success-box" id="share-url-out"></div>
-        <p style="font-size:12px;margin-top:12px;color:var(--text-medium);">Example SMS:</p>
-        <div class="share-success-box" id="share-sms-out"></div>
-        <button type="button" class="submit-btn" id="share-done-btn" style="margin-top:16px;">Close</button>
+        <p id="share-tests-summary-heading" style="font-size:13px;color:var(--text-dark);margin:12px 0 8px;">Tests to include:</p>
+        <ul id="share-review-tests-list" class="share-review-tests-list"></ul>
+        <div id="share-post-confirm" style="display:none;">
+          <p style="font-size:13px;color:var(--text-dark);margin-top:12px;">Share link (expires per your selection):</p>
+          <div class="share-success-box" id="share-url-out"></div>
+          <p style="font-size:12px;margin-top:12px;color:var(--text-medium);">Example SMS:</p>
+          <div class="share-success-box" id="share-sms-out"></div>
+        </div>
+        <div class="share-modal-actions">
+          <button type="button" class="submit-btn" id="share-submit">Confirm Send</button>
+          <button type="button" class="submit-btn submit-btn--secondary" id="share-done-btn">Close</button>
+        </div>
       </div>
     </div>
   </div>
@@ -297,6 +304,10 @@
   function openShareModal() {
     shareFormWrap.style.display = 'block';
     shareDoneWrap.style.display = 'none';
+    document.getElementById('share-post-confirm').style.display = 'none';
+    document.getElementById('share-submit').style.display = '';
+    document.getElementById('share-review-tests-list').innerHTML = '';
+    document.getElementById('share-sent-line').innerHTML = '';
     document.getElementById('share-recipient').value = '';
     document.getElementById('share-custom-handle').value = '';
     document.getElementById('share-custom-handle').disabled = true;
@@ -307,6 +318,35 @@
     updateRecipientPreview();
     populateShareTests();
     shareModal.classList.add('active');
+  }
+
+  function readShareFormForSend() {
+    var to = document.getElementById('share-recipient').value.trim();
+    if (!to) {
+      alert('Enter a phone number or ODYL User ID for the recipient.');
+      return null;
+    }
+    var ttl = parseInt(document.getElementById('share-ttl').value, 10);
+    var useCustom = document.getElementById('share-as-custom').checked;
+    var customH = document.getElementById('share-custom-handle').value.trim();
+    if (useCustom && !customH) {
+      alert('Enter the handle you want recipients to see, or choose your saved Handle.');
+      return null;
+    }
+    var displayHandle = useCustom ? customH : ODYL.getPeerHandle(persona);
+    var picked = [];
+    document.querySelectorAll('#share-test-checkboxes input[type="checkbox"]').forEach(function (cb) {
+      if (cb.checked) {
+        var i = parseInt(cb.getAttribute('data-idx'), 10);
+        if (!isNaN(i) && lastSortedTests[i]) picked.push(lastSortedTests[i]);
+      }
+    });
+    if (!picked.length) {
+      alert('Select at least one lab result to share.');
+      return null;
+    }
+    var recipientInfo = ODYL.resolveRecipientLabel(to);
+    return { to: to, ttl: ttl, displayHandle: displayHandle, picked: picked, recipientInfo: recipientInfo };
   }
 
   document.getElementById('share-recipient').addEventListener('input', updateRecipientPreview);
@@ -336,54 +376,49 @@
     openShareModal();
   });
 
-  document.getElementById('share-submit').addEventListener('click', function () {
-    var to = document.getElementById('share-recipient').value.trim();
-    if (!to) {
-      alert('Enter a phone number or ODYL User ID for the recipient.');
-      return;
-    }
-    var ttl = parseInt(document.getElementById('share-ttl').value, 10);
-    var useCustom = document.getElementById('share-as-custom').checked;
-    var customH = document.getElementById('share-custom-handle').value.trim();
-    if (useCustom && !customH) {
-      alert('Enter the handle you want recipients to see, or choose your saved Handle.');
-      return;
-    }
-    var displayHandle = useCustom ? customH : ODYL.getPeerHandle(persona);
-    var picked = [];
-    document.querySelectorAll('#share-test-checkboxes input[type="checkbox"]').forEach(function (cb) {
-      if (cb.checked) {
-        var i = parseInt(cb.getAttribute('data-idx'), 10);
-        if (!isNaN(i) && lastSortedTests[i]) picked.push(lastSortedTests[i]);
-      }
-    });
-    if (!picked.length) {
-      alert('Select at least one lab result to share.');
-      return;
-    }
-    var bundle = ODYL.createShareBundle(persona, {
-      recipientContact: to,
-      tests: picked,
-      displayHandle: displayHandle,
-      ttlMs: ttl
-    });
-    var sms =
-      displayHandle +
-      ' wants to share ODYL Health lab results with you. Open: ' +
-      bundle.url;
-    var recipientInfo = ODYL.resolveRecipientLabel(to);
+  document.getElementById('share-continue').addEventListener('click', function () {
+    var data = readShareFormForSend();
+    if (!data) return;
     var sentLine = document.getElementById('share-sent-line');
-    if (recipientInfo && recipientInfo.isKnown) {
-      sentLine.innerHTML = "Sending your results to '<strong>" + recipientInfo.handle + "</strong>'";
-    } else if (recipientInfo) {
-      sentLine.innerHTML = 'Sending your results to <strong>' + recipientInfo.handle + '</strong>';
+    if (data.recipientInfo && data.recipientInfo.isKnown) {
+      sentLine.innerHTML = "Sending your results to '<strong>" + data.recipientInfo.handle + "</strong>'";
+    } else if (data.recipientInfo) {
+      sentLine.innerHTML = 'Sending your results to <strong>' + data.recipientInfo.handle + '</strong>';
     } else {
       sentLine.textContent = '';
     }
-    document.getElementById('share-url-out').textContent = bundle.url;
-    document.getElementById('share-sms-out').textContent = sms;
+    var list = document.getElementById('share-review-tests-list');
+    list.innerHTML = '';
+    data.picked.forEach(function (test) {
+      var d = new Date(test.date);
+      var dateDisplay = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      var li = document.createElement('li');
+      li.textContent = test.type + ' · ' + dateDisplay + ' · ' + test.result;
+      list.appendChild(li);
+    });
+    document.getElementById('share-post-confirm').style.display = 'none';
+    document.getElementById('share-submit').style.display = '';
     shareFormWrap.style.display = 'none';
     shareDoneWrap.style.display = 'block';
+  });
+
+  document.getElementById('share-submit').addEventListener('click', function () {
+    var data = readShareFormForSend();
+    if (!data) return;
+    var bundle = ODYL.createShareBundle(persona, {
+      recipientContact: data.to,
+      tests: data.picked,
+      displayHandle: data.displayHandle,
+      ttlMs: data.ttl
+    });
+    var sms =
+      data.displayHandle +
+      ' wants to share ODYL Health lab results with you. Open: ' +
+      bundle.url;
+    document.getElementById('share-url-out').textContent = bundle.url;
+    document.getElementById('share-sms-out').textContent = sms;
+    document.getElementById('share-post-confirm').style.display = 'block';
+    document.getElementById('share-submit').style.display = 'none';
   });
 })();
 </script>
