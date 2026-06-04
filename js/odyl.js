@@ -342,6 +342,90 @@
     window.location.href = 'profile.html';
   }
 
+  /** Supported patient portal systems (demo: opens vendor login; future: OAuth/API). */
+  var PATIENT_PORTALS = [
+    {
+      id: 'hopkins-mychart',
+      name: 'Johns Hopkins Medicine',
+      system: 'Epic MyChart',
+      loginUrl: 'https://mychart.hopkinsmedicine.org/MyChart/Authentication/Login'
+    },
+    {
+      id: 'epic-mychart',
+      name: 'Epic MyChart',
+      system: 'Epic (search your organization)',
+      loginUrl: 'https://mychart.com/'
+    },
+    {
+      id: 'cerner-healthelife',
+      name: 'Cerner / Oracle Health',
+      system: 'HealtheLife patient portal',
+      loginUrl: 'https://www.healthelife.com/'
+    },
+    {
+      id: 'athena-patient',
+      name: 'athenaPatient',
+      system: 'athenahealth',
+      loginUrl: 'https://patient.athenahealth.com/'
+    },
+    {
+      id: 'nextgen',
+      name: 'NextGen Patient Portal',
+      system: 'NextGen Healthcare',
+      loginUrl: 'https://www.nextmd.com/'
+    }
+  ];
+
+  function portalsStorageKey(userId) {
+    return 'odyl_connected_portals_' + userId;
+  }
+
+  function getPatientPortals() {
+    return PATIENT_PORTALS.slice();
+  }
+
+  function getPatientPortalById(portalId) {
+    for (var i = 0; i < PATIENT_PORTALS.length; i++) {
+      if (PATIENT_PORTALS[i].id === portalId) return PATIENT_PORTALS[i];
+    }
+    return null;
+  }
+
+  function getConnectedPortals(userId) {
+    try {
+      var raw = JSON.parse(localStorage.getItem(portalsStorageKey(userId)) || '[]');
+      return Array.isArray(raw) ? raw : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function connectPatientPortal(userId, portalId) {
+    var portal = getPatientPortalById(portalId);
+    if (!portal || !userId) return null;
+    var list = getConnectedPortals(userId);
+    var exists = list.some(function (c) {
+      return c.portalId === portalId;
+    });
+    if (!exists) {
+      list.push({
+        portalId: portalId,
+        name: portal.name,
+        system: portal.system,
+        connectedAt: Date.now()
+      });
+      localStorage.setItem(portalsStorageKey(userId), JSON.stringify(list));
+    }
+    return portal;
+  }
+
+  function disconnectPatientPortal(userId, portalId) {
+    var list = getConnectedPortals(userId).filter(function (c) {
+      return c.portalId !== portalId;
+    });
+    localStorage.setItem(portalsStorageKey(userId), JSON.stringify(list));
+  }
+
   function getLockReturnPage() {
     var parts = window.location.pathname.split('/').filter(Boolean);
     var last = parts.length ? parts[parts.length - 1] : 'index.html';
@@ -735,6 +819,11 @@
     logout: logout,
     goLock: goLock,
     goProfile: goProfile,
+    getPatientPortals: getPatientPortals,
+    getPatientPortalById: getPatientPortalById,
+    getConnectedPortals: getConnectedPortals,
+    connectPatientPortal: connectPatientPortal,
+    disconnectPatientPortal: disconnectPatientPortal,
     Icons: Icons,
     renderHeader: renderHeader,
     mountHeader: mountHeader,

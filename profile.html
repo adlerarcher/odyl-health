@@ -51,6 +51,13 @@
       </dl>
     </div>
 
+    <div class="info-card" id="portal-card">
+      <h3>Patient portals</h3>
+      <p style="font-size:13px;color:var(--text-medium);margin-bottom:12px;">Link one or more health system patient portals to ODYL Health. This prototype opens each vendor’s sign-in page on your device (no data is exchanged yet).</p>
+      <ul class="connected-portals" id="connected-portals-list" style="display:none;"></ul>
+      <button type="button" class="action-btn green" id="btn-find-portal" style="width:100%;">Find your patient portal</button>
+    </div>
+
     <div class="info-card">
       <h3>About this prototype</h3>
       <p>ODYL Health Phase 1 runs entirely in your browser. Personas are synthetic — no real PHI, no backend, no authentication.</p>
@@ -63,6 +70,16 @@
   </div>
 
   <div id="odyl-nav-mount"></div>
+
+  <div class="modal-overlay" id="portal-modal" aria-hidden="true">
+    <div class="modal-content" role="dialog" aria-labelledby="portal-modal-title">
+      <button type="button" class="modal-close" id="portal-modal-close" aria-label="Close">&times;</button>
+      <h3 id="portal-modal-title" style="font-family:var(--font-display);font-size:18px;margin:0 32px 8px 0;text-align:center;">Connect a patient portal</h3>
+      <p style="font-size:12px;color:var(--text-medium);text-align:center;margin-bottom:16px;">Choose your health system. You can connect more than one portal to ODYL.</p>
+      <ul class="portal-list" id="portal-picker-list"></ul>
+      <p style="font-size:11px;color:var(--text-light);text-align:center;line-height:1.4;">Demo: sign-in happens on the portal’s website. A future release will use secure authorization to sync results into ODYL.</p>
+    </div>
+  </div>
 
 </div>
 
@@ -88,6 +105,101 @@
   document.getElementById('v-gender').textContent = persona.Gender;
   document.getElementById('v-race').textContent = persona.Race_Ethnicity;
   document.getElementById('v-rewards').textContent = (persona.rewards != null ? persona.rewards : 0) + ' pts';
+
+  function renderConnectedPortals() {
+    var listEl = document.getElementById('connected-portals-list');
+    var connected = ODYL.getConnectedPortals(persona.User_ID);
+    listEl.innerHTML = '';
+    if (!connected.length) {
+      listEl.style.display = 'none';
+      return;
+    }
+    listEl.style.display = 'block';
+    connected.forEach(function (c) {
+      var li = document.createElement('li');
+      var when = c.connectedAt
+        ? new Date(c.connectedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        : '';
+      li.innerHTML =
+        '<strong>' +
+        (c.name || c.portalId) +
+        '</strong>' +
+        (c.system ? ' · ' + c.system : '') +
+        '<div class="portal-connected-meta">Connected (demo)' +
+        (when ? ' · ' + when : '') +
+        '</div>';
+      listEl.appendChild(li);
+    });
+  }
+
+  function openPortalModal() {
+    var modal = document.getElementById('portal-modal');
+    modal.classList.add('active');
+    modal.setAttribute('aria-hidden', 'false');
+  }
+
+  function closePortalModal() {
+    var modal = document.getElementById('portal-modal');
+    modal.classList.remove('active');
+    modal.setAttribute('aria-hidden', 'true');
+  }
+
+  function renderPortalPicker() {
+    var ul = document.getElementById('portal-picker-list');
+    var connectedIds = ODYL.getConnectedPortals(persona.User_ID).map(function (c) {
+      return c.portalId;
+    });
+    ul.innerHTML = '';
+    ODYL.getPatientPortals().forEach(function (portal) {
+      var li = document.createElement('li');
+      li.className = 'portal-list-item';
+      var isConnected = connectedIds.indexOf(portal.id) !== -1;
+      li.innerHTML =
+        '<span class="portal-name">' +
+        portal.name +
+        '</span>' +
+        '<span class="portal-system">' +
+        portal.system +
+        '</span>' +
+        '<div class="portal-actions"></div>';
+      var actions = li.querySelector('.portal-actions');
+      var connectBtn = document.createElement('button');
+      connectBtn.type = 'button';
+      connectBtn.className = 'action-btn coral';
+      connectBtn.textContent = isConnected ? 'Open sign-in' : 'Connect';
+      connectBtn.addEventListener('click', function () {
+        ODYL.connectPatientPortal(persona.User_ID, portal.id);
+        window.open(portal.loginUrl, '_blank', 'noopener,noreferrer');
+        renderConnectedPortals();
+        renderPortalPicker();
+      });
+      actions.appendChild(connectBtn);
+      if (isConnected) {
+        var disconnectBtn = document.createElement('button');
+        disconnectBtn.type = 'button';
+        disconnectBtn.className = 'action-btn outline-dark';
+        disconnectBtn.textContent = 'Remove';
+        disconnectBtn.addEventListener('click', function () {
+          ODYL.disconnectPatientPortal(persona.User_ID, portal.id);
+          renderConnectedPortals();
+          renderPortalPicker();
+        });
+        actions.appendChild(disconnectBtn);
+      }
+      ul.appendChild(li);
+    });
+  }
+
+  document.getElementById('btn-find-portal').addEventListener('click', function () {
+    renderPortalPicker();
+    openPortalModal();
+  });
+  document.getElementById('portal-modal-close').addEventListener('click', closePortalModal);
+  document.getElementById('portal-modal').addEventListener('click', function (e) {
+    if (e.target === this) closePortalModal();
+  });
+
+  renderConnectedPortals();
 
   document.getElementById('btn-switch').addEventListener('click', function () {
     ODYL.clearPersona();

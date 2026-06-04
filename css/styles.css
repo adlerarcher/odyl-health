@@ -2224,6 +2224,131 @@ a.locator-item--link:active {
   cursor: pointer;
 }
 
+.field-hint {
+  font-size: 12px;
+  color: var(--text-medium);
+  margin: 0 0 8px;
+  line-height: 1.4;
+}
+
+.segment-longpress-hint {
+  margin-top: 8px;
+  margin-bottom: 0;
+}
+
+.segment-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+}
+
+.segment-divider {
+  font-size: 11px;
+  color: var(--text-light);
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.segment-btn {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 6px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.75);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.segment-btn.selected {
+  background: var(--coral);
+  color: var(--white);
+  box-shadow: 0 2px 8px rgba(249, 112, 133, 0.35);
+}
+
+.segment-btn:active {
+  transform: scale(0.97);
+}
+
+.segment-custom-input {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(255, 255, 255, 0.85);
+  font-size: 16px;
+}
+
+.portal-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+}
+
+.portal-list-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.portal-list-item:last-child {
+  border-bottom: none;
+}
+
+.portal-list-item .portal-name {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.portal-list-item .portal-system {
+  font-size: 12px;
+  color: var(--text-medium);
+}
+
+.portal-list-item .portal-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.portal-list-item .portal-actions button {
+  flex: 1;
+  font-size: 12px;
+  padding: 8px 10px;
+}
+
+.connected-portals {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px;
+  font-size: 13px;
+}
+
+.connected-portals li {
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.65);
+  border-radius: 10px;
+  margin-bottom: 6px;
+  color: var(--text-dark);
+}
+
+.connected-portals .portal-connected-meta {
+  font-size: 11px;
+  color: var(--text-medium);
+  margin-top: 2px;
+}
+
 .guest-result-capture {
   background: #fff;
   border-radius: 12px;

@@ -61,16 +61,34 @@
       </div>
       <div class="modal-section">
         <h4>Partner type / identifier</h4>
-        <div class="partner-type-grid">
-          <label><input type="radio" name="partner-type" value="steady" checked> Steady / main</label>
-          <label><input type="radio" name="partner-type" value="casual"> Casual / known</label>
-          <label><input type="radio" name="partner-type" value="new"> New / one-time</label>
-          <label><input type="radio" name="partner-type" value="anonymous"> Anonymous</label>
+        <p class="field-hint">Select all that apply.</p>
+        <div class="partner-type-grid checkbox-group">
+          <label class="checkbox-item"><input type="checkbox" name="partner-type" value="steady"> Steady / main</label>
+          <label class="checkbox-item"><input type="checkbox" name="partner-type" value="casual"> Casual / known</label>
+          <label class="checkbox-item"><input type="checkbox" name="partner-type" value="new"> New / one-time</label>
+          <label class="checkbox-item"><input type="checkbox" name="partner-type" value="anonymous"> Anonymous</label>
         </div>
         <div class="modal-field" style="flex-direction:column;align-items:stretch;margin-top:10px;">
           <span>Optional nickname / label</span>
           <input type="text" id="log-partner-nick" placeholder="e.g. initials you’ll recognize">
         </div>
+      </div>
+      <div class="modal-section">
+        <h4>Partners</h4>
+        <p class="field-hint">How many people were involved? (e.g. threesome, group)</p>
+        <div class="segment-row" id="partner-count-row" role="group" aria-label="Number of partners">
+          <button type="button" class="segment-btn selected" data-count="1">1</button>
+          <span class="segment-divider" aria-hidden="true">•</span>
+          <button type="button" class="segment-btn" data-count="2">2</button>
+          <span class="segment-divider" aria-hidden="true">•</span>
+          <button type="button" class="segment-btn" data-count="3">3</button>
+          <span class="segment-divider" aria-hidden="true">•</span>
+          <button type="button" class="segment-btn" data-count="4">4</button>
+          <span class="segment-divider" aria-hidden="true">•</span>
+          <button type="button" class="segment-btn" data-count="5plus" id="btn-partner-5plus">5+</button>
+        </div>
+        <p class="field-hint segment-longpress-hint">Long-press <strong>5+</strong> to enter a larger count.</p>
+        <input type="number" id="log-partner-count-custom" class="segment-custom-input" min="6" max="99" inputmode="numeric" placeholder="Enter number (6+)" style="display:none;" aria-label="Custom partner count">
       </div>
       <div class="modal-section">
         <h4>Sexual activity types</h4>
@@ -85,7 +103,8 @@
       </div>
       <div class="modal-section">
         <h4>Protection use</h4>
-        <div class="checkbox-group">
+        <div class="checkbox-group" id="protection-group">
+          <label class="checkbox-item"><input type="checkbox" id="prot-none"> None</label>
           <label class="checkbox-item"><input type="checkbox" id="prot-condom"> Condom</label>
           <label class="checkbox-item"><input type="checkbox" id="prot-bc"> Birth control</label>
           <label class="checkbox-item"><input type="checkbox" id="prot-dam"> Dental dam</label>
@@ -151,14 +170,188 @@
     return b.sexual.length > 0 || b.menstrual.length > 0 || b.reminders.length > 0;
   }
 
+  var PARTNER_TYPE_LABELS = {
+    steady: 'steady / main',
+    casual: 'casual / known',
+    new: 'new / one-time',
+    anonymous: 'anonymous'
+  };
+
+  var selectedPartnerCount = 1;
+  var partnerCountCustom = null;
+  var LONG_PRESS_MS = 500;
+  var longPressTimer = null;
+
+  function formatPartnerTypes(entry) {
+    if (Array.isArray(entry.partnerTypes) && entry.partnerTypes.length) {
+      return entry.partnerTypes
+        .map(function (v) {
+          return PARTNER_TYPE_LABELS[v] || v;
+        })
+        .join(', ');
+    }
+    if (entry.partnerType) {
+      return PARTNER_TYPE_LABELS[entry.partnerType] || entry.partnerType;
+    }
+    return '—';
+  }
+
+  function formatPartnerCount(entry) {
+    var n = entry.partnerCount;
+    if (n == null || n < 1) return '';
+    if (n >= 6) return n + ' partners';
+    if (n === 5) return '5+ partners';
+    return n + ' partner' + (n === 1 ? '' : 's');
+  }
+
+  function formatProtection(entry) {
+    var p = entry.protection;
+    if (!p) return '';
+    if (p.none) return 'protection: none';
+    var parts = [];
+    if (p.condom) parts.push('condom');
+    if (p.bc) parts.push('birth control');
+    if (p.dam) parts.push('dental dam');
+    if (p.dia) parts.push('diaphragm');
+    return parts.length ? 'protection: ' + parts.join(', ') : '';
+  }
+
   function formatSexualLine(entry) {
     var acts = (entry.activities || []).join(', ');
     if (!acts) acts = '(types not specified)';
     var tw = entry.timeWindow || '—';
-    var pt = entry.partnerType || '—';
+    var pt = formatPartnerTypes(entry);
     var nick = entry.partnerNick ? ' · ' + entry.partnerNick : '';
     var clock = entry.exactTime ? ' @ ' + entry.exactTime : '';
-    return tw + clock + ' · ' + pt + nick + ' · ' + acts;
+    var partners = formatPartnerCount(entry);
+    var partnersBit = partners ? ' · ' + partners : '';
+    var prot = formatProtection(entry);
+    var protBit = prot ? ' · ' + prot : '';
+    return tw + clock + ' · ' + pt + nick + partnersBit + protBit + ' · ' + acts;
+  }
+
+  function syncPartnerCountUI() {
+    document.querySelectorAll('#partner-count-row .segment-btn').forEach(function (btn) {
+      var attr = btn.getAttribute('data-count');
+      var on = false;
+      if (attr === '5plus') {
+        on = selectedPartnerCount >= 5;
+        btn.textContent = selectedPartnerCount >= 6 ? String(selectedPartnerCount) : '5+';
+      } else {
+        on = parseInt(attr, 10) === selectedPartnerCount;
+        if (attr === '1') btn.textContent = '1';
+        else if (attr === '2') btn.textContent = '2';
+        else if (attr === '3') btn.textContent = '3';
+        else if (attr === '4') btn.textContent = '4';
+      }
+      btn.classList.toggle('selected', on);
+    });
+  }
+
+  function resetPartnerCountUI() {
+    selectedPartnerCount = 1;
+    partnerCountCustom = null;
+    var custom = document.getElementById('log-partner-count-custom');
+    custom.style.display = 'none';
+    custom.value = '';
+    document.getElementById('btn-partner-5plus').textContent = '5+';
+    syncPartnerCountUI();
+  }
+
+  function bindPartnerCountControls() {
+    document.querySelectorAll('#partner-count-row .segment-btn').forEach(function (btn) {
+      var countAttr = btn.getAttribute('data-count');
+
+      function applySelection() {
+        if (countAttr === '5plus') {
+          selectedPartnerCount = 5;
+          partnerCountCustom = null;
+          document.getElementById('log-partner-count-custom').style.display = 'none';
+          document.getElementById('log-partner-count-custom').value = '';
+        } else {
+          selectedPartnerCount = parseInt(countAttr, 10);
+          partnerCountCustom = null;
+          document.getElementById('log-partner-count-custom').style.display = 'none';
+          document.getElementById('log-partner-count-custom').value = '';
+        }
+        syncPartnerCountUI();
+      }
+
+      btn.addEventListener('click', function () {
+        if (btn.dataset.longPressFired === '1') {
+          btn.dataset.longPressFired = '';
+          return;
+        }
+        applySelection();
+      });
+
+      function clearLongPress() {
+        if (longPressTimer) {
+          clearTimeout(longPressTimer);
+          longPressTimer = null;
+        }
+      }
+
+      function startLongPress() {
+        if (countAttr !== '5plus') return;
+        clearLongPress();
+        longPressTimer = setTimeout(function () {
+          btn.dataset.longPressFired = '1';
+          var inp = document.getElementById('log-partner-count-custom');
+          inp.style.display = 'block';
+          inp.focus();
+        }, LONG_PRESS_MS);
+      }
+
+      btn.addEventListener('mousedown', startLongPress);
+      btn.addEventListener('mouseup', clearLongPress);
+      btn.addEventListener('mouseleave', clearLongPress);
+      btn.addEventListener('touchstart', startLongPress, { passive: true });
+      btn.addEventListener('touchend', clearLongPress);
+      btn.addEventListener('touchcancel', clearLongPress);
+    });
+
+    document.getElementById('log-partner-count-custom').addEventListener('change', function () {
+      var v = parseInt(this.value, 10);
+      if (v >= 6 && v <= 99) {
+        partnerCountCustom = v;
+        selectedPartnerCount = v;
+        syncPartnerCountUI();
+      }
+    });
+  }
+
+  function bindProtectionControls() {
+    var none = document.getElementById('prot-none');
+    var others = ['prot-condom', 'prot-bc', 'prot-dam', 'prot-dia'].map(function (id) {
+      return document.getElementById(id);
+    });
+    none.addEventListener('change', function () {
+      if (none.checked) {
+        others.forEach(function (el) {
+          el.checked = false;
+        });
+      }
+    });
+    others.forEach(function (el) {
+      el.addEventListener('change', function () {
+        if (el.checked) none.checked = false;
+      });
+    });
+  }
+
+  function getSelectedPartnerTypes() {
+    return Array.prototype.slice
+      .call(document.querySelectorAll('input[name="partner-type"]:checked'))
+      .map(function (el) {
+        return el.value;
+      });
+  }
+
+  function resetPartnerTypeCheckboxes() {
+    document.querySelectorAll('input[name="partner-type"]').forEach(function (el) {
+      el.checked = false;
+    });
   }
 
   function renderDayPanel() {
@@ -362,17 +555,19 @@
       alert('Select at least one activity type, or cancel.');
       return;
     }
-    var partnerType = (document.querySelector('input[name="partner-type"]:checked') || {}).value || '';
+    var partnerTypes = getSelectedPartnerTypes();
     var entry = {
       timeWindow: document.getElementById('log-time-window').value,
       exactTime:
         document.getElementById('log-use-exact-time').checked && document.getElementById('log-exact-time').value
           ? document.getElementById('log-exact-time').value
           : '',
-      partnerType: partnerType,
+      partnerTypes: partnerTypes,
+      partnerCount: selectedPartnerCount,
       partnerNick: document.getElementById('log-partner-nick').value.trim(),
       activities: activities,
       protection: {
+        none: document.getElementById('prot-none').checked,
         condom: document.getElementById('prot-condom').checked,
         bc: document.getElementById('prot-bc').checked,
         dam: document.getElementById('prot-dam').checked,
@@ -393,6 +588,7 @@
       'act-anal-ins',
       'act-anal-rec',
       'act-mutual',
+      'prot-none',
       'prot-condom',
       'prot-bc',
       'prot-dam',
@@ -405,7 +601,8 @@
     document.getElementById('log-exact-time').value = '';
     document.getElementById('log-exact-time').disabled = true;
     document.getElementById('log-partner-nick').value = '';
-    document.querySelector('input[name="partner-type"][value="steady"]').checked = true;
+    resetPartnerTypeCheckboxes();
+    resetPartnerCountUI();
 
     renderDayPanel();
     renderCalendar();
@@ -438,6 +635,10 @@
     renderDayPanel();
     renderCalendar();
   });
+
+  bindPartnerCountControls();
+  bindProtectionControls();
+  syncPartnerCountUI();
 
   renderDayPanel();
   renderCalendar();
