@@ -426,6 +426,145 @@
     localStorage.setItem(portalsStorageKey(userId), JSON.stringify(list));
   }
 
+  function parseCalendarDateKey(key) {
+    var parts = String(key).split('-');
+    if (parts.length !== 3) return null;
+    var y = parseInt(parts[0], 10);
+    var m = parseInt(parts[1], 10) - 1;
+    var d = parseInt(parts[2], 10);
+    if (isNaN(y) || isNaN(m) || isNaN(d)) return null;
+    return new Date(y, m, d);
+  }
+
+  function formatHomeDateLabel(date) {
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
+    var target = new Date(date);
+    target.setHours(0, 0, 0, 0);
+    if (target.getTime() === today.getTime()) return 'today';
+    var tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    if (target.getTime() === tomorrow.getTime()) return 'tomorrow';
+    return target.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  }
+
+  function getCalendarEventBuckets(userId) {
+    try {
+      return JSON.parse(localStorage.getItem('odyl_events_' + userId) || '{}');
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function findNextCalendarReminder(userId) {
+    var events = getCalendarEventBuckets(userId);
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
+    var best = null;
+    Object.keys(events).forEach(function (key) {
+      var date = parseCalendarDateKey(key);
+      if (!date || date < today) return;
+      var raw = events[key];
+      var reminders = [];
+      if (raw === true) {
+        reminders = [{ text: 'Earlier log (no detail)' }];
+      } else if (raw && typeof raw === 'object' && Array.isArray(raw.reminders)) {
+        reminders = raw.reminders;
+      }
+      if (!reminders.length) return;
+      if (!best || date < best.date) {
+        best = {
+          date: date,
+          dateLabel: formatHomeDateLabel(date),
+          text: (reminders[0] && reminders[0].text) || 'Scheduled reminder'
+        };
+      }
+    });
+    return best;
+  }
+
+  function surveyIsComplete(persona) {
+    if (!persona || !persona.survey) return false;
+    for (var i = 1; i <= 8; i++) {
+      if (persona.survey['Q' + i] == null) return false;
+    }
+    return true;
+  }
+
+  /** Home dashboard: one timely next step from inbox, reminders, survey, or results. */
+  function getHomeNextStep(persona) {
+    if (!persona) {
+      return {
+        label: 'Suggested next step',
+        title: 'Get started',
+        body: 'Track care, find support, and manage your health tools.',
+        href: 'calendar.html',
+        cta: 'Open Calendar'
+      };
+    }
+
+    var inbox = getInboxForUser(persona.User_ID);
+    if (inbox.length) {
+      return {
+        label: 'Suggested next step',
+        title: 'Review shared results',
+        body:
+          'You have ' +
+          inbox.length +
+          ' shared result' +
+          (inbox.length === 1 ? '' : 's') +
+          ' in your inbox.',
+        href: 'inbox.html',
+        cta: 'Open Inbox'
+      };
+    }
+
+    var reminder = findNextCalendarReminder(persona.User_ID);
+    if (reminder) {
+      return {
+        label: 'Suggested next step',
+        title: 'Upcoming reminder',
+        body: reminder.text + ' — ' + reminder.dateLabel + '.',
+        href: 'calendar.html',
+        cta: 'Open Calendar'
+      };
+    }
+
+    if (!surveyIsComplete(persona)) {
+      return {
+        label: 'Suggested next step',
+        title: 'Complete your RiskCheck',
+        body: 'Answer a few questions to personalize screening and prevention guidance.',
+        href: 'survey.html',
+        cta: 'Start RiskCheck'
+      };
+    }
+
+    var tests = getPersonaTests(persona);
+    if (tests && tests.length) {
+      return {
+        label: 'Suggested next step',
+        title: 'Review your results',
+        body:
+          'Your latest panel includes ' +
+          tests.length +
+          ' test' +
+          (tests.length === 1 ? '' : 's') +
+          '.',
+        href: 'results.html',
+        cta: 'View Results'
+      };
+    }
+
+    return {
+      label: 'Suggested next step',
+      title: 'Log today’s activity',
+      body: 'Keep your calendar up to date for reminders and care planning.',
+      href: 'calendar.html',
+      cta: 'Open Calendar'
+    };
+  }
+
   function getLockReturnPage() {
     var parts = window.location.pathname.split('/').filter(Boolean);
     var last = parts.length ? parts[parts.length - 1] : 'index.html';
@@ -824,6 +963,7 @@
     getConnectedPortals: getConnectedPortals,
     connectPatientPortal: connectPatientPortal,
     disconnectPatientPortal: disconnectPatientPortal,
+    getHomeNextStep: getHomeNextStep,
     Icons: Icons,
     renderHeader: renderHeader,
     mountHeader: mountHeader,

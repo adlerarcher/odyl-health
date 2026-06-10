@@ -274,6 +274,10 @@ body.odyl-desktop .page-dots--mobile {
 }
 
 body.odyl-desktop .dashboard-desktop-wrap {
+  display: none;
+}
+
+body.odyl-desktop .home-dashboard {
   display: block;
   max-width: 960px;
   margin: 0 auto 24px;
@@ -316,61 +320,136 @@ body.odyl-desktop .rewards-bar {
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
 }
 
-/* Home (index): tighter vertical rhythm; flex growth in carousel instead of gap above bottom nav */
+/* Home dashboard */
 .home-page #odyl-nav-mount {
   margin-top: 0;
-}
-
-.home-page .carousel-viewport--mobile {
-  flex: 1 1 auto;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  flex-shrink: 0;
 }
 
 .home-page .welcome-banner {
-  margin: 4px 16px;
-  padding: 10px 18px;
+  margin: 4px 16px 0;
+  padding: 10px 18px 12px;
+  flex-shrink: 0;
+}
+
+.home-page .welcome-tagline {
+  margin: 6px 0 0;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--text-medium);
 }
 
 .home-page .app-header {
   padding: 10px 16px 6px;
+  flex-shrink: 0;
 }
 
-/* Home dashboard: icons on gradient / workspace — no white card */
-.home-page .carousel-panel .feature-grid--home {
-  margin: 4px 4px 0;
-  padding: 6px 8px 4px;
-  gap: 36px 18px;
+.home-next-step {
+  display: block;
+  margin: 10px 16px 12px;
+  padding: 14px 16px 12px;
+  background: rgba(255, 255, 255, 0.94);
+  border-radius: 16px;
+  border-left: 4px solid var(--coral);
+  box-shadow: var(--card-shadow);
+  text-decoration: none;
+  color: inherit;
+  flex-shrink: 0;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.home-page .carousel-panel .feature-grid--home .feature-tile {
-  gap: 12px;
+.home-next-step:active {
+  transform: scale(0.99);
 }
 
-.home-page .carousel-panel .feature-grid--home .feature-icon {
-  width: 124px;
-  height: 124px;
-  filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.12));
+.home-next-step-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--coral);
+  margin-bottom: 6px;
 }
 
-.home-page .carousel-panel .feature-grid--home .feature-icon .odyl-icon-svg {
-  width: 96px;
-  height: 96px;
-}
-
-.home-page .carousel-panel .feature-grid--home .feature-label {
-  font-size: 15px;
+.home-next-step-title {
+  font-family: var(--font-display);
+  font-size: 16px;
   font-weight: 600;
+  color: var(--text-dark);
+  margin: 0 0 6px;
+  line-height: 1.3;
 }
 
-.home-page .page-dots {
-  padding: 8px 0 4px;
+.home-next-step-body {
+  margin: 0 0 10px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text-medium);
 }
 
-.home-page .rewards-bar {
-  margin: 10px 16px 8px;
+.home-next-step-cta {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.home-dashboard {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 12px 12px;
+}
+
+.home-section {
+  margin-bottom: 18px;
+}
+
+.home-section:last-child {
+  margin-bottom: 4px;
+}
+
+.home-section-title {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-medium);
+  margin: 0 6px 10px;
+}
+
+.home-page .feature-grid--home {
+  margin: 0;
+  padding: 0 4px;
+  gap: 12px 10px;
+}
+
+.home-page .feature-grid--home .feature-tile {
+  gap: 8px;
+  min-height: 44px;
+}
+
+.home-page .feature-grid--home .feature-icon {
+  width: 88px;
+  height: 88px;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.1));
+}
+
+.home-page .feature-grid--home .feature-icon .odyl-icon-svg {
+  width: 64px;
+  height: 64px;
+}
+
+.home-page .feature-grid--home .feature-label {
+  font-size: 13px;
+  font-weight: 600;
 }
 
 body.odyl-desktop .phone-frame.home-page {
@@ -378,25 +457,42 @@ body.odyl-desktop .phone-frame.home-page {
 }
 
 body.odyl-desktop .phone-frame.home-page .app-header-bar {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 body.odyl-desktop .phone-frame.home-page .welcome-banner {
+  max-width: 960px;
   margin: 0 auto 12px;
   padding: 14px 20px;
 }
 
-body.odyl-desktop .phone-frame.home-page .dashboard-desktop-wrap {
-  margin-bottom: 16px;
+body.odyl-desktop .phone-frame.home-page .home-next-step {
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-body.odyl-desktop .phone-frame.home-page .feature-grid--desktop-all.feature-grid--home {
-  gap: 28px 36px;
-  padding: 8px 0 12px;
+body.odyl-desktop .phone-frame.home-page .home-dashboard {
+  padding: 0 0 12px;
 }
 
-body.odyl-desktop .phone-frame.home-page .feature-tile--desktop .feature-icon {
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08));
+body.odyl-desktop .home-page .feature-grid--home {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px 20px;
+}
+
+body.odyl-desktop .home-page .feature-grid--home .feature-icon {
+  width: 112px;
+  height: 112px;
+}
+
+body.odyl-desktop .home-page .feature-grid--home .feature-icon .odyl-icon-svg {
+  width: 80px;
+  height: 80px;
+}
+
+body.odyl-desktop .home-page .feature-grid--home .feature-label {
+  font-size: 15px;
 }
 
 body.odyl-desktop .content-stack,

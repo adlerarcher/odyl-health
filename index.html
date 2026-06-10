@@ -24,105 +24,77 @@
 
   <div class="welcome-banner">
     <h2 id="welcome-text">Welcome</h2>
+    <p class="welcome-tagline">Track care, find support, and manage your health tools.</p>
   </div>
 
-  <div class="carousel-viewport carousel-viewport--mobile">
-    <div class="carousel-pages" id="carousel-pages" data-page="0">
-      <div class="carousel-panel">
-        <div class="feature-grid feature-grid--home">
-          <a href="calendar.html" class="feature-tile">
-            <div class="feature-icon" data-icon="calendar"></div>
-            <span class="feature-label">Calendar</span>
-          </a>
-          <a href="locator.html" class="feature-tile">
-            <div class="feature-icon" data-icon="mapPin"></div>
-            <span class="feature-label">Health Locator</span>
-          </a>
-          <a href="results.html" class="feature-tile">
-            <div class="feature-icon" data-icon="clipboard"></div>
-            <span class="feature-label">Test Results</span>
-          </a>
-          <a href="support.html" class="feature-tile">
-            <div class="feature-icon" data-icon="heartHands"></div>
-            <span class="feature-label">Health Support</span>
-          </a>
-        </div>
-      </div>
-      <div class="carousel-panel">
-        <div class="feature-grid feature-grid--home">
-          <a href="education.html" class="feature-tile">
-            <div class="feature-icon" data-icon="book"></div>
-            <span class="feature-label">Education</span>
-          </a>
-          <a href="lumi.html" class="feature-tile">
-            <div class="feature-icon" data-icon="chat"></div>
-            <span class="feature-label">LUMI.AI</span>
-          </a>
-          <a href="survey.html" class="feature-tile">
-            <div class="feature-icon" data-icon="survey"></div>
-            <span class="feature-label">RiskCheck</span>
-          </a>
-          <a href="profile.html" class="feature-tile">
-            <div class="feature-icon" data-icon="gear"></div>
-            <span class="feature-label">Profile</span>
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="dashboard-desktop-wrap">
-    <div class="feature-grid feature-grid--desktop-all feature-grid--home">
-      <a href="calendar.html" class="feature-tile feature-tile--desktop">
-        <div class="feature-icon" data-icon="calendar"></div>
-        <span class="feature-label">Calendar</span>
-      </a>
-      <a href="locator.html" class="feature-tile feature-tile--desktop">
-        <div class="feature-icon" data-icon="mapPin"></div>
-        <span class="feature-label">Health Locator</span>
-      </a>
-      <a href="results.html" class="feature-tile feature-tile--desktop">
-        <div class="feature-icon" data-icon="clipboard"></div>
-        <span class="feature-label">Test Results</span>
-      </a>
-      <a href="support.html" class="feature-tile feature-tile--desktop">
-        <div class="feature-icon" data-icon="heartHands"></div>
-        <span class="feature-label">Health Support</span>
-      </a>
-      <a href="education.html" class="feature-tile feature-tile--desktop">
-        <div class="feature-icon" data-icon="book"></div>
-        <span class="feature-label">Education</span>
-      </a>
-      <a href="lumi.html" class="feature-tile feature-tile--desktop">
-        <div class="feature-icon" data-icon="chat"></div>
-        <span class="feature-label">LUMI.AI</span>
-      </a>
-      <a href="survey.html" class="feature-tile feature-tile--desktop">
-        <div class="feature-icon" data-icon="survey"></div>
-        <span class="feature-label">RiskCheck</span>
-      </a>
-      <a href="profile.html" class="feature-tile feature-tile--desktop">
-        <div class="feature-icon" data-icon="gear"></div>
-        <span class="feature-label">Profile</span>
-      </a>
-    </div>
-  </div>
-
-  <div class="page-dots page-dots--mobile" role="tablist" aria-label="Dashboard pages">
-    <button type="button" class="page-dot active" data-go="0" role="tab" aria-selected="true" aria-label="Page 1"></button>
-    <button type="button" class="page-dot" data-go="1" role="tab" aria-selected="false" aria-label="Page 2"></button>
-  </div>
-
-  <a href="rewards.html" class="rewards-bar">
-    <div class="rewards-bar-left">
-      <h3>View Your Rewards</h3>
-    </div>
-    <div class="rewards-bar-center">
-      <span class="rewards-medal-wrap" id="rewards-medal-wrap"></span>
-      <span class="rewards-points" id="rewards-points">50 Points</span>
-    </div>
-    <div class="rewards-arrow" aria-hidden="true">&#8594;</div>
+  <a href="calendar.html" class="home-next-step" id="home-next-step">
+    <span class="home-next-step-label">Suggested next step</span>
+    <h3 class="home-next-step-title" id="next-step-title">Loading…</h3>
+    <p class="home-next-step-body" id="next-step-body"></p>
+    <span class="home-next-step-cta" id="next-step-cta">Continue</span>
   </a>
+
+  <div class="home-dashboard" id="home-dashboard">
+    <section class="home-section" aria-labelledby="home-section-track">
+      <h3 class="home-section-title" id="home-section-track">Track</h3>
+      <div class="feature-grid feature-grid--home">
+        <a href="calendar.html" class="feature-tile">
+          <div class="feature-icon" data-icon="calendar"></div>
+          <span class="feature-label">Calendar</span>
+        </a>
+        <a href="results.html" class="feature-tile">
+          <div class="feature-icon" data-icon="clipboard"></div>
+          <span class="feature-label">Results</span>
+        </a>
+        <a href="survey.html" class="feature-tile">
+          <div class="feature-icon" data-icon="survey"></div>
+          <span class="feature-label">RiskCheck</span>
+        </a>
+        <a href="rewards.html" class="feature-tile">
+          <div class="feature-icon" data-icon="medal"></div>
+          <span class="feature-label">Rewards</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="home-section" aria-labelledby="home-section-learn">
+      <h3 class="home-section-title" id="home-section-learn">Learn</h3>
+      <div class="feature-grid feature-grid--home">
+        <a href="education.html" class="feature-tile">
+          <div class="feature-icon" data-icon="book"></div>
+          <span class="feature-label">Education</span>
+        </a>
+        <a href="lumi.html" class="feature-tile">
+          <div class="feature-icon" data-icon="chat"></div>
+          <span class="feature-label">LUMI.AI</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="home-section" aria-labelledby="home-section-support">
+      <h3 class="home-section-title" id="home-section-support">Get Support</h3>
+      <div class="feature-grid feature-grid--home">
+        <a href="locator.html" class="feature-tile">
+          <div class="feature-icon" data-icon="mapPin"></div>
+          <span class="feature-label">Health Locator</span>
+        </a>
+        <a href="support.html" class="feature-tile">
+          <div class="feature-icon" data-icon="heartHands"></div>
+          <span class="feature-label">Support</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="home-section" aria-labelledby="home-section-profile">
+      <h3 class="home-section-title" id="home-section-profile">Manage Profile</h3>
+      <div class="feature-grid feature-grid--home">
+        <a href="profile.html" class="feature-tile">
+          <div class="feature-icon" data-icon="gear"></div>
+          <span class="feature-label">Profile</span>
+        </a>
+      </div>
+    </section>
+  </div>
 
   <div id="odyl-nav-mount"></div>
 
@@ -138,27 +110,21 @@
     ODYL.mountBottomNav('#odyl-nav-mount', 'home');
 
     document.getElementById('welcome-text').textContent = 'Welcome, ' + persona.First_Name;
-    document.getElementById('rewards-points').textContent = (persona.rewards != null ? persona.rewards : 50) + ' Points';
-    document.getElementById('rewards-medal-wrap').innerHTML = ODYL.Icons.medal();
 
     document.querySelectorAll('.feature-icon[data-icon]').forEach(function (el) {
       var k = el.getAttribute('data-icon');
       if (ODYL.Icons[k]) el.innerHTML = ODYL.Icons[k]();
     });
 
-    var pages = document.getElementById('carousel-pages');
-    var dots = document.querySelectorAll('.page-dot[data-go]');
-    dots.forEach(function (dot) {
-      dot.addEventListener('click', function () {
-        var go = dot.getAttribute('data-go');
-        pages.setAttribute('data-page', go);
-        dots.forEach(function (d) {
-          var on = d === dot;
-          d.classList.toggle('active', on);
-          d.setAttribute('aria-selected', on ? 'true' : 'false');
-        });
-      });
-    });
+    var step = ODYL.getHomeNextStep(persona);
+    var nextLink = document.getElementById('home-next-step');
+    nextLink.href = step.href;
+    document.getElementById('next-step-title').textContent = step.title;
+    document.getElementById('next-step-body').textContent = step.body;
+    document.getElementById('next-step-cta').textContent = step.cta;
+    if (step.label) {
+      document.querySelector('.home-next-step-label').textContent = step.label;
+    }
   })();
 </script>
 
